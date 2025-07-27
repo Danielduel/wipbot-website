@@ -1,0 +1,145 @@
+{
+  "_version": "2.1.0",
+  "_songName": "Dual Fractal",
+  "_songSubName": "",
+  "_songAuthorName": "M2U",
+  "_levelAuthorName": "Pleo",
+  "_beatsPerMinute": 160.0,
+  "_songTimeOffset": 0.0,
+  "_shuffle": 0.0,
+  "_shufflePeriod": 0.5,
+  "_previewStartTime": 70.0,
+  "_previewDuration": 30.0,
+  "_songFilename": "dualfractal160.egg",
+  "_coverImageFilename": "dftransforned.png",
+  "_environmentName": "DefaultEnvironment",
+  "_allDirectionsEnvironmentName": "GlassDesertEnvironment",
+  "_environmentNames": [],
+  "_colorSchemes": [],
+  "_customData": {
+    "_editors": {
+      "_lastEditedBy": "ChroMapper",
+      "ChroMapper": {
+        "version": "0.9.661"
+      }
+    }
+  },
+  "_difficultyBeatmapSets": [
+    {
+      "_beatmapCharacteristicName": "Standard",
+      "_difficultyBeatmaps": [
+        {
+          "_difficulty": "Expert",
+          "_difficultyRank": 7,
+          "_beatmapFilename": "ExpertStandard.dat",
+          "_noteJumpMovementSpeed": 17.0,
+          "_noteJumpStartBeatOffset": -0.6,
+          "_beatmapColorSchemeIdx": 0,
+          "_environmentNameIdx": 0,
+          "_customData": {
+            "_difficultyLabel": "a kaleidoscope",
+            "_envColorLeft": {
+              "r": 0.556,
+              "g": 0.319,
+              "b": 0
+            },
+            "_envColorRight": {
+              "r": 0.397,
+              "g": 0,
+              "b": 0.52
+            },
+            "_envColorLeftBoost": {
+              "r": 0.705,
+              "g": 0.405,
+              "b": 0
+            },
+            "_envColorRightBoost": {
+              "r": 0.528,
+              "g": 0,
+              "b": 0.691
+            }
+          }
+        },
+        {
+          "_difficulty": "ExpertPlus",
+          "_difficultyRank": 9,
+          "_beatmapFilename": "ExpertPlusStandard.dat",
+          "_noteJumpMovementSpeed": 18.0,
+          "_noteJumpStartBeatOffset": -0.6,
+          "_beatmapColorSchemeIdx": 0,
+          "_environmentNameIdx": 0,
+          "_customData": {
+            "_difficultyLabel": "Mandelbrot set",
+            "_colorLeft": {
+              "r": 0.827,
+              "g": 0.112,
+              "b": 0.112
+            },
+            "_envColorLeftBoost": {
+              "r": 0.663,
+              "g": 0.38,
+              "b": 0
+            },
+            "_envColorLeft": {
+              "r": 0.485,
+              "g": 0.278,
+              "b": 0
+            },
+            "_envColorRight": {
+              "r": 0.399,
+              "g": 0.125,
+              "b": 0.368
+            },
+            "_envColorRightBoost": {
+              "r": 0.627,
+              "g": 0.174,
+              "b": 0.576
+            }
+          }
+        }
+      ]
+    },
+    {
+      "_beatmapCharacteristicName": "Lawless",
+      "_difficultyBeatmaps": [
+        {
+          "_difficulty": "ExpertPlus",
+          "_difficultyRank": 9,
+          "_beatmapFilename": "ExpertPlusLawless.dat",
+          "_noteJumpMovementSpeed": 18.0,
+          "_noteJumpStartBeatOffset": -0.6,
+          "_beatmapColorSchemeIdx": 0,
+          "_environmentNameIdx": 0,
+          "_customData": {
+            "_difficultyLabel": "unorthodox amounts of lysergic acid diethylamide",
+            "_colorLeft": {
+              "r": 0.827,
+              "g": 0.112,
+              "b": 0.112
+            },
+            "_envColorLeftBoost": {
+              "r": 0.663,
+              "g": 0.38,
+              "b": 0
+            },
+            "_envColorLeft": {
+              "r": 0.485,
+              "g": 0.278,
+              "b": 0
+            },
+            "_envColorRight": {
+              "r": 0.399,
+              "g": 0.125,
+              "b": 0.368
+            },
+            "_envColorRightBoost": {
+              "r": 0.627,
+              "g": 0.174,
+              "b": 0.576
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
