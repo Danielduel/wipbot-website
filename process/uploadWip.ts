@@ -110,11 +110,13 @@ export namespace UploadWip {
     const hasVivifyWindows2021 = fileEntries.has("bundleWindows2021.vivify");
 
     const infoInfo = {
+      info: "Info.dat",
       cover: infoDat._coverImageFilename,
       song: infoDat._songFilename,
       difficultyFiles: infoDat._difficultyBeatmapSets.flatMap((x) =>
         x._difficultyBeatmaps.flatMap((y) => y._beatmapFilename)
       ),
+      contributors: infoDat._customData?._contributors?.flatMap(x => x._iconPath ?? "") ?? [],
       bpmInfo: hasBPMInfo ? "BPMInfo.dat" : null,
       cinemaVideo: hasCinemaVideo ? "cinema-video.json" : null,
       vivifyAndroid2021: hasVivifyAndroid2021

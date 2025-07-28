@@ -18,6 +18,11 @@ export const InfoDatSchema = z.object({
   _songSubName: _,
   _songAuthorName: _,
   _levelAuthorName: _,
+  _customData: z.object({
+    _contributors: z.array(z.object({
+      _iconPath: z.string().optional(),
+    })).optional(),
+  }).optional(),
   // ...
   _beatsPerMinute: z.number(),
   _previewStartTime: z.number(),

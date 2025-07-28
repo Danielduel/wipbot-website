@@ -13,7 +13,10 @@ const runTest = async (
     );
     const formData = new FormData();
     formData.set(testFileName, new Blob([file]));
-    const returns = await UploadWip._getBlob(formData);  
+    const returns = await UploadWip._getBlob(formData);
+    
+    // uncoment to generate
+    // if (returns) Deno.writeFileSync(`./process/__uploadWip/result-${testFileName}`, await returns.bytes());
 
     assertEquals(!!returns, expectSuccess ? true : false);
   });
