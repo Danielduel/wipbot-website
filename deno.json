@@ -14,7 +14,8 @@
       "tags": [
         "fresh",
         "recommended"
-      ]
+      ],
+      "exclude": ["no-namespace"]
     }
   },
   "exclude": [
@@ -22,6 +23,7 @@
   ],
   "imports": {
     "$fresh/": "https://deno.land/x/fresh@1.7.3/",
+    "@zip-js/zip-js": "jsr:@zip-js/zip-js@^2.7.69",
     "preact": "https://esm.sh/preact@10.22.0",
     "preact/": "https://esm.sh/preact@10.22.0/",
     "@preact/signals": "https://esm.sh/*@preact/signals@1.2.2",
