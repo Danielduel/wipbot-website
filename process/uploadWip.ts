@@ -7,6 +7,7 @@ import {
   ZipReader,
   ZipWriter,
 } from "https://deno.land/x/zipjs@v2.7.69/index.js";
+import { S3Client } from "./s3Client.ts";
 
 // TODO
 // BeatSaber doesn't care about lower/uppercase - make this code not care too
@@ -22,7 +23,7 @@ export namespace UploadWip {
   const compressedTotalSizeLimit = 64 * MEGABYTE;
   const uncompressedItemSizeLimit = 100 * MEGABYTE;
 
-  const getFileEntries = async (formData: FormData): Promise<FileEntries> => {
+  const _getFileEntries = async (formData: FormData): Promise<FileEntries> => {
     const _formDataArr: IterableIterator<FormDataEntryValue> = formData
       .values();
     const formDataArr = [..._formDataArr];
@@ -111,7 +112,7 @@ export namespace UploadWip {
     return object;
   };
 
-  const verifyBeatSaberMapZip = (fileEntries: FileEntries) => {
+  const _verify = (fileEntries: FileEntries) => {
     // Info.dat
     if (!fileEntries.has("Info.dat")) {
       console.error("Missing Info.dat in fileEntries");
@@ -163,9 +164,9 @@ export namespace UploadWip {
     return infoInfo;
   };
 
-  const reconstructBeatSaberMapZip = async (
+  const _reconstruct = async (
     fileEntries: FileEntries,
-    infoInfo: ReturnType<typeof verifyBeatSaberMapZip>,
+    infoInfo: ReturnType<typeof _verify>,
   ) => {
     const zipFileWriter = new BlobWriter();
     const zipWriter = new ZipWriter(zipFileWriter);
@@ -209,9 +210,9 @@ export namespace UploadWip {
 
   export const _getBlob = async (formData: FormData): Promise<Blob | null> => {
     try {
-      const fileEntries = await getFileEntries(formData);
-      const infoInfo = verifyBeatSaberMapZip(fileEntries);
-      const finalBlob = await reconstructBeatSaberMapZip(fileEntries, infoInfo);
+      const fileEntries = await _getFileEntries(formData);
+      const infoInfo = _verify(fileEntries);
+      const finalBlob = await _reconstruct(fileEntries, infoInfo);
       return finalBlob;
     } catch (_) {
       console.error(_);
@@ -219,11 +220,33 @@ export namespace UploadWip {
     }
   };
 
-  export const uploadWip = async (formData: FormData): Promise<string> => {
+  export const _generateName = (seed: number = Math.floor(Math.random() * Date.now())) => {
+    const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const length = 5;
+    const index = () => {
+      const x = Math.sin(seed++) * 1000;
+      const randomish = x - Math.floor(x);
+      return Math.floor((randomish * characters.length))
+    };
+    const arr = new Array(length).fill("").map(() => characters[index()]);
+
+    return arr.join("");
+  };
+
+  export const generateAvailableName = async () => {
+    const s3Client = S3Client.getS3Client();
+    let key = UploadWip._generateName();
+    while (await s3Client.exists(key, { bucketName: S3Client.BUCKET.WIP_BLOB })) {
+      key = UploadWip._generateName();
+    }
+    return key;
+  }
+
+  export const uploadWip = async (formData: FormData): Promise<Blob | null> => {
     const blob = await _getBlob(formData);
     if (blob) {
-      return "OK";
+      return blob;
     }
-    return "Not OK";
+    return null;
   };
 }

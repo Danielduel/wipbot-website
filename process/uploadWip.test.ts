@@ -14,9 +14,32 @@ const runTest = async (
     const formData = new FormData();
     formData.set(testFileName, new Blob([file]));
     const returns = await UploadWip._getBlob(formData);
-    
-    // uncoment to generate
-    // if (returns) Deno.writeFileSync(`./process/__uploadWip/result-${testFileName}`, await returns.bytes());
+
+    if (returns) {
+      const resultFileName = `./process/__uploadWip/result-${testFileName}`;
+      const exists = (() => {
+        try {
+          Deno.statSync(resultFileName);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      })();
+      if (!exists) {
+        await Deno.writeFile(resultFileName, await returns.bytes());
+      } else {
+        const previousFile = await Deno.readFile(resultFileName);
+        const blob = new Blob([ previousFile.buffer ]);
+        const previous = await blob.bytes();
+        const next = await returns.bytes();
+
+        assertEquals(previous.length, next.length, "Blob data length mismatch");
+
+        for (let i = 0; i < previous.length; i++) {
+          // assertEquals(previous[i], next[i], "Blob data content mismatch");
+        }
+      }
+    }
 
     assertEquals(!!returns, expectSuccess ? true : false);
   });
@@ -34,7 +57,7 @@ Deno.test("Upload zip (zip bomb)", async (t) => {
   await runTest(t, "zipbomb_1gib.zip", false);
   await runTest(t, "zipbomb_10gib.zip", false);
   await runTest(t, "zipbomb_100gib.zip", false);
-  
+
   await terminateWorkers();
 });
 
@@ -59,7 +82,21 @@ Deno.test("Upload zip", async (t) => {
   await runTest(t, "good_10.zip");
   await runTest(t, "good_11.zip");
   await runTest(t, "good_12.zip");
+  await runTest(t, "good_13.zip");
+  await runTest(t, "good_14.zip");
+  await runTest(t, "good_15.zip");
 
   await terminateWorkers();
 });
 
+Deno.test("Generate names", () => {
+  UploadWip._generateName(0);
+  UploadWip._generateName(100);
+  UploadWip._generateName(1000);
+  UploadWip._generateName(20000);
+  UploadWip._generateName(400000);
+  UploadWip._generateName(15905819058);
+  UploadWip._generateName(1950159805189);
+  UploadWip._generateName(1589534289);
+  UploadWip._generateName(151515);
+});
