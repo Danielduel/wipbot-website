@@ -2,7 +2,8 @@ import { FreshContext } from "$fresh/server.ts";
 import { S3Client } from "../../process/s3Client.ts";
 
 export const handler = async (_req: Request, _ctx: FreshContext): Promise<Response> => {
-  const _wipcode = _ctx.params.wipcode;
+  const __wipcode = _ctx.params.wipcode;
+  const _wipcode = __wipcode.endsWith(".zip") ? __wipcode.split(".zip")[0] : __wipcode;
   const wipcode = _wipcode.substring(1);
 
   console.log(_wipcode, " -> ", wipcode);
