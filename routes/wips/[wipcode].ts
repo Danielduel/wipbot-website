@@ -13,3 +13,4 @@ export const handler = async (_req: Request, _ctx: FreshContext): Promise<Respon
   const data = await s3Client.getObject(wipcode, { bucketName: S3Client.BUCKET.WIP_BLOB }); 
   return data;
 };
+
