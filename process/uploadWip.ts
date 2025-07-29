@@ -221,7 +221,7 @@ export namespace UploadWip {
   };
 
   export const _generateName = (seed: number = Math.floor(Math.random() * Date.now())) => {
-    const characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const characters = "0123456789ABCDEF"; // GHIJKLMNOPQRSTUVWXYZ";
     const length = 5;
     const index = () => {
       const x = Math.sin(seed++) * 1000;
