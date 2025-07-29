@@ -8,6 +8,10 @@ import {
   ZipWriter,
 } from "https://deno.land/x/zipjs@v2.7.69/index.js";
 
+// TODO
+// BeatSaber doesn't care about lower/uppercase - make this code not care too
+//
+
 export namespace UploadWip {
   type FileEntry = {
     name: string;
@@ -23,15 +27,24 @@ export namespace UploadWip {
       .values();
     const formDataArr = [..._formDataArr];
 
-    if (formDataArr.length !== 1) throw 400;
+    if (formDataArr.length !== 1) {
+      console.error("1");
+      throw 400;
+    }
 
     const [item] = formDataArr;
 
-    if (!(item instanceof File)) throw 400;
+    if (!(item instanceof File)) {
+      console.error("2");
+      throw 400;
+    }
 
     const file = item as File;
 
-    if (file.size > compressedTotalSizeLimit) throw 400;
+    if (file.size > compressedTotalSizeLimit) {
+      console.error("3");
+      throw 400;
+    }
 
     const fileEntries = new Map<string, FileEntry>();
     const stream = file.stream();
@@ -47,6 +60,7 @@ export namespace UploadWip {
       if (!zipFileContent.directory) {
         const buffer = new Buffer();
         if (zipFileContent.uncompressedSize > uncompressedItemSizeLimit) {
+          console.error("4");
           await zipReader.close();
           throw 400;
         }
@@ -99,10 +113,20 @@ export namespace UploadWip {
 
   const verifyBeatSaberMapZip = (fileEntries: FileEntries) => {
     // Info.dat
-    if (!fileEntries.has("Info.dat")) throw 400;
+    if (!fileEntries.has("Info.dat")) {
+      console.error("Missing Info.dat in fileEntries");
+      throw 400;
+    }
     const infoDatObject = readBufferAsJson(fileEntries.get("Info.dat")!.data);
-    const infoDat = InfoDatSchema.parse(infoDatObject);
-    // console.log(infoDat);
+
+    const _infoDat = InfoDatSchema.safeParse(infoDatObject);
+
+    if (_infoDat.error) {
+      console.error("Failed to parse Info.dat", _infoDat.error);
+      throw 400;
+    }
+    const infoDat = _infoDat!.data!;
+
     const hasBPMInfo = fileEntries.has("BPMInfo.dat");
     const hasCinemaVideo = fileEntries.has("cinema-video.json");
     const hasVivifyAndroid2021 = fileEntries.has("bundleAndroid2021.vivify");
@@ -116,7 +140,13 @@ export namespace UploadWip {
       difficultyFiles: infoDat._difficultyBeatmapSets.flatMap((x) =>
         x._difficultyBeatmaps.flatMap((y) => y._beatmapFilename)
       ),
-      contributors: infoDat._customData?._contributors?.flatMap(x => x._iconPath ?? "") ?? [],
+      contributors:
+        infoDat._customData?._contributors?.flatMap((x) => x._iconPath ?? "") ??
+          [],
+      customCharacteristicsIcons:
+        infoDat._difficultyBeatmapSets.flatMap((x) =>
+          x._customData?._characteristicIconImageFilename ?? null
+        ) ?? [],
       bpmInfo: hasBPMInfo ? "BPMInfo.dat" : null,
       cinemaVideo: hasCinemaVideo ? "cinema-video.json" : null,
       vivifyAndroid2021: hasVivifyAndroid2021
@@ -126,7 +156,7 @@ export namespace UploadWip {
         ? "bundleWindows2019.vivify"
         : null,
       vivifyWindows2021: hasVivifyWindows2021
-        ? "bundleAndroid2021.vivify"
+        ? "bundleWindows2021.vivify"
         : null,
     };
 
@@ -146,7 +176,18 @@ export namespace UploadWip {
         .flatMap((x) => x)
         .filter((x) => x !== null)
         .map((x) => {
-          const _file = fileEntries.get(x!);
+          // TODO rework this part
+          let _x = x;
+          const _file = fileEntries
+            .get(x!) ?? // ignore case fallback
+            (() => {
+              const key = fileEntries
+                .keys()
+                .find((y) => y.toLowerCase() === x.toLowerCase());
+              if (!key) return undefined;
+              _x = key;
+              return fileEntries.get(key);
+            })();
           if (!_file) {
             console.error(
               `${x} is missing in reconstruction`,
@@ -155,8 +196,10 @@ export namespace UploadWip {
               "\ncontents:",
               [...fileEntries.keys()],
             );
+            throw 400;
           }
-          return zipWriter.add(x!, fileEntries.get(x!)!.data);
+
+          return zipWriter.add(_x!, _file.data);
         }),
     );
     await zipWriter.close();
@@ -171,16 +214,16 @@ export namespace UploadWip {
       const finalBlob = await reconstructBeatSaberMapZip(fileEntries, infoInfo);
       return finalBlob;
     } catch (_) {
+      console.error(_);
       return null;
     }
   };
 
   export const uploadWip = async (formData: FormData): Promise<string> => {
-    try {
-      const blob = await _getBlob(formData);
-    } catch (_) {
-      return "Not OK";
+    const blob = await _getBlob(formData);
+    if (blob) {
+      return "OK";
     }
-    return "OK";
+    return "Not OK";
   };
 }

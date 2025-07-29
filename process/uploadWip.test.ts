@@ -16,7 +16,7 @@ const runTest = async (
     const returns = await UploadWip._getBlob(formData);
     
     // uncoment to generate
-    // if (returns) Deno.writeFileSync(`./process/__uploadWip/result-${testFileName}`, await returns.bytes());
+    if (returns) Deno.writeFileSync(`./process/__uploadWip/result-${testFileName}`, await returns.bytes());
 
     assertEquals(!!returns, expectSuccess ? true : false);
   });
@@ -54,6 +54,8 @@ Deno.test("Upload zip", async (t) => {
   await runTest(t, "good_5_with_junk.zip");
   await runTest(t, "good_6_with_cinema.zip");
   await runTest(t, "good_7_with_asciiart_filename.zip");
+  await runTest(t, "good_8_with_custom_characteristic.zip");
+  await runTest(t, "good_9_vivify_contributors_characteristics.zip");
 
   await terminateWorkers();
 });

@@ -9,7 +9,10 @@ export const InfoDatDifficultyBeatmapsSchema = z.object({
 
 export const InfoDatDifficultyBeatmapSetsSchema = z.object({
   // ...
-  _difficultyBeatmaps: z.array(InfoDatDifficultyBeatmapsSchema)
+  _difficultyBeatmaps: z.array(InfoDatDifficultyBeatmapsSchema),
+  _customData: z.object({
+    _characteristicIconImageFilename: z.string().optional(),
+  }).optional(),
 });
 
 export const InfoDatSchema = z.object({
