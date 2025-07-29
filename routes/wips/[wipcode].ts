@@ -11,6 +11,6 @@ export const handler = async (_req: Request, _ctx: FreshContext): Promise<Respon
   if (!exists) throw 404;
 
   const data = await s3Client.getObject(wipcode, { bucketName: S3Client.BUCKET.WIP_BLOB }); 
-  return data;
+  return new Response(await data.blob());
 };
 
