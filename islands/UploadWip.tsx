@@ -37,13 +37,21 @@ export const UploadWip = () => {
   return (
     <div class="w-dvw h-dvh bg-[#3b4252]">
       <div class="max-w-screen-md w-full h-full mx-auto my-auto flex flex-col items-center justify-center">
+        <div class="text-white">Select file and then click Upload button, after a moment it should present you a code to copy-paste</div>
+
         {wipCode.value !== "" && (
           <div className="py-4 px-9 m-4 bg-[#434c5e] rounded-md text-2xl font-bold text-white">
             !wip 0{wipCode.value}
           </div>
         )}
-        <input ref={ref} type="file"></input>
+
+        <input class="p-4 m-2 text-white text-xl" ref={ref} type="file"></input>
         <Button onClick={handleUploadClick}>Upload</Button>
+
+        <p class="text-xl text-white bg-[#434c5e] py-4 px-9 m-4 rounded">
+          Should support everything (including vivify) except v4 maps<br />
+          V4 update in few hours.
+        </p>
       </div>
     </div>
   );
