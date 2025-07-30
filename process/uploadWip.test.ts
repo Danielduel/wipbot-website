@@ -86,6 +86,9 @@ Deno.test("Upload zip", async (t) => {
   await runTest(t, "good_14.zip");
   await runTest(t, "good_15.zip");
   await runTest(t, "good_16_v4_map.zip");
+  await runTest(t, "good_17.zip");
+  await runTest(t, "good_18.zip");
+  await runTest(t, "good_19.zip");
 
   await terminateWorkers();
 });

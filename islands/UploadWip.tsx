@@ -49,8 +49,8 @@ export const UploadWip = () => {
         <Button onClick={handleUploadClick}>Upload</Button>
 
         <p class="text-xl text-white bg-[#434c5e] py-4 px-9 m-4 rounded">
-          Should support everything (including vivify) except v4 maps<br />
-          V4 update in few hours.
+          Should support every kind of map zip<br />
+          In case of issues: <a class="underline text-[#5e81ac]" href="https://discord.gg/h8Pg95CNGa">Discord server</a> or directly <code class="p-1">danielduel</code> on Discord
         </p>
       </div>
     </div>
