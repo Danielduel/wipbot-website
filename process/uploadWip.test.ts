@@ -89,18 +89,19 @@ Deno.test("Upload zip", async (t) => {
   await runTest(t, "good_17.zip");
   await runTest(t, "good_18.zip");
   await runTest(t, "good_19.zip");
+  await runTest(t, "good_20.zip");
 
   await terminateWorkers();
 });
 
 Deno.test("Generate names", () => {
-  UploadWip._generateName(0);
-  UploadWip._generateName(100);
-  UploadWip._generateName(1000);
-  UploadWip._generateName(20000);
-  UploadWip._generateName(400000);
-  UploadWip._generateName(15905819058);
-  UploadWip._generateName(1950159805189);
-  UploadWip._generateName(1589534289);
-  UploadWip._generateName(151515);
+  UploadWip._generateName(5, 0);
+  UploadWip._generateName(5, 100);
+  UploadWip._generateName(5, 1000);
+  UploadWip._generateName(5, 20000);
+  UploadWip._generateName(5, 400000);
+  UploadWip._generateName(5, 15905819058);
+  UploadWip._generateName(5, 1950159805189);
+  UploadWip._generateName(5, 1589534289);
+  UploadWip._generateName(5, 151515);
 });

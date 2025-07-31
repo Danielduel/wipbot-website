@@ -9,6 +9,7 @@ import {
 } from "https://deno.land/x/zipjs@v2.7.69/index.js";
 import { S3Client } from "./s3Client.ts";
 import { InfoDatV4Schema } from "../zod-schema/Info.dat.v4.schema.ts";
+import { DbClient } from "./dbClient.ts";
 
 // TODO
 // BeatSaber doesn't care about lower/uppercase - make this code not care too
@@ -24,17 +25,8 @@ export namespace UploadWip {
   const compressedTotalSizeLimit = 64 * MEGABYTE;
   const uncompressedItemSizeLimit = 100 * MEGABYTE;
 
-  const _getFileEntries = async (formData: FormData): Promise<FileEntries> => {
-    const _formDataArr: IterableIterator<FormDataEntryValue> = formData
-      .values();
-    const formDataArr = [..._formDataArr];
-
-    if (formDataArr.length !== 1) {
-      console.error("1");
-      throw 400;
-    }
-
-    const [item] = formDataArr;
+  const _getFileEntries = async (blobToVerify: Blob): Promise<FileEntries> => {
+    const item = new File([ blobToVerify ], "none")
 
     if (!(item instanceof File)) {
       console.error("2");
@@ -261,9 +253,9 @@ export namespace UploadWip {
     return await zipFileWriter.getData();
   };
 
-  export const _getBlob = async (formData: FormData): Promise<Blob | null> => {
+  export const _getBlob = async (blobToVerify: Blob): Promise<Blob | null> => {
     try {
-      const fileEntries = await _getFileEntries(formData);
+      const fileEntries = await _getFileEntries(blobToVerify);
       const infoInfo = _verify(fileEntries);
       const finalBlob = await _reconstruct(fileEntries, infoInfo);
       return finalBlob;
@@ -274,10 +266,10 @@ export namespace UploadWip {
   };
 
   export const _generateName = (
+    length: number = 5,
     seed: number = Math.floor(Math.random() * Date.now()),
   ) => {
     const characters = "0123456789ABCDEF"; // GHIJKLMNOPQRSTUVWXYZ";
-    const length = 5;
     const index = () => {
       const x = Math.sin(seed++) * 1000;
       const randomish = x - Math.floor(x);
@@ -288,19 +280,46 @@ export namespace UploadWip {
     return arr.join("");
   };
 
+  export const _generateHash = (
+    length: number = 12,
+    seed: number = Math.floor(Math.random() * Date.now()),
+  ) => {
+    return _generateName(length, seed);
+  }
+
+  const isNameAvailable = async (dbClient: DbClient.DbClient, name: string) => {
+    const data = await dbClient.WipMetadata.findByPrimaryIndex("wipcode", name);
+    if (!data) return true;
+    return data.value.removed;
+  }
+
   export const generateAvailableName = async () => {
-    const s3Client = S3Client.getS3Client();
+    const dbClient = await DbClient.getDbClient();
     let key = UploadWip._generateName();
-    while (
-      await s3Client.exists(key, { bucketName: S3Client.BUCKET.WIP_BLOB })
-    ) {
+    while (!(await isNameAvailable(dbClient, key))) {
       key = UploadWip._generateName();
     }
     return key;
   };
+  
+  const isHashAvailable = async (dbClient: DbClient.DbClient, hash: string) => {
+    const data = await dbClient.WipMetadata.findByPrimaryIndex("hash", hash);
+    if (!data) return true;
+    return data.value.removed;
+  }
 
-  export const uploadWip = async (formData: FormData): Promise<Blob | null> => {
-    const blob = await _getBlob(formData);
+
+  export const generateAvailableHash = async () => {
+    const dbClient = await DbClient.getDbClient();
+    let key = UploadWip._generateHash();
+    while (!(await isHashAvailable(dbClient, key))) {
+      key = UploadWip._generateHash();
+    }
+    return key;
+  }
+
+  export const verifyWip = async (blobToVerify: Blob): Promise<Blob | null> => {
+    const blob = await _getBlob(blobToVerify);
     if (blob) {
       return blob;
     }

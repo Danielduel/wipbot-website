@@ -34,7 +34,8 @@ export namespace S3Client {
   };
 
   export enum BUCKET {
-    WIP_BLOB = "wipbot-zip-blob"
+    WIP_BLOB = "wipbot-zip-blob",
+    WIP_BLOB_VERIFIED = "wipbot-zip-verified",
   } 
 }
 

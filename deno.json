@@ -9,6 +9,7 @@
     "preview": "deno run -A main.ts",
     "update": "deno run -A -r https://fresh.deno.dev/update ."
   },
+  "unstable": ["kv"],
   "lint": {
     "rules": {
       "tags": [
@@ -31,7 +32,9 @@
     "tailwindcss": "npm:tailwindcss@3.4.1",
     "tailwindcss/": "npm:/tailwindcss@3.4.1/",
     "tailwindcss/plugin": "npm:/tailwindcss@3.4.1/plugin.js",
-    "$std/": "https://deno.land/std@0.216.0/"
+    "$std/": "https://deno.land/std@0.216.0/",
+    "kvdex": "jsr:@olli/kvdex@3.4.0",
+    "zod": "npm:zod@3.24.0"
   },
   "compilerOptions": {
     "jsx": "react-jsx",

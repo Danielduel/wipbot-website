@@ -1,4 +1,4 @@
-import { z } from "npm:zod";
+import { z } from "zod";
 
 const InfoDatV4DifficultyBeatmapSchema = z.object({
   beatmapDataFilename: z.string(),

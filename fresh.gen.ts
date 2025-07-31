@@ -5,7 +5,8 @@
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $_middleware from "./routes/_middleware.ts";
-import * as $api_upload from "./routes/api/upload.ts";
+import * as $api_upload_prepare from "./routes/api/upload/prepare.ts";
+import * as $api_upload_verify from "./routes/api/upload/verify.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $wips_wipcode_ from "./routes/wips/[wipcode].ts";
@@ -17,7 +18,8 @@ const manifest = {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
     "./routes/_middleware.ts": $_middleware,
-    "./routes/api/upload.ts": $api_upload,
+    "./routes/api/upload/prepare.ts": $api_upload_prepare,
+    "./routes/api/upload/verify.ts": $api_upload_verify,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
     "./routes/wips/[wipcode].ts": $wips_wipcode_,
