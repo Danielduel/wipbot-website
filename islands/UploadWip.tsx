@@ -21,8 +21,9 @@ export const UploadWip = () => {
 
     for (const file of current.files) {
       uploadButtonText.value = "Preparing upload";
-      const bytes = await file.bytes();
-      const blob = new Blob([bytes]);
+      // const bytes = await file.bytes();
+
+      const blob = new Blob([file]); // new Blob([bytes]);
 
       // formData.append(file.name, blob);
       uploadButtonText.value = "Requesting upload";
