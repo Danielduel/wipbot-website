@@ -6,8 +6,9 @@ import { ResponseObject } from "../routes/api/upload/prepare.ts";
 export const UploadWip = () => {
   const ref = useRef<null | HTMLInputElement>(null);
   const uploadButtonText = useSignal("");
+  const disableTheUploadButton = useSignal(false);
   const wipCode = useSignal("");
-  const handleUploadClick = useCallback(async () => {
+  const _handleUploadClick = useCallback(async () => {
     uploadButtonText.value = "Starting";
     if (!ref.current) return false;
 
@@ -77,15 +78,21 @@ export const UploadWip = () => {
     }
 
     return true;
-  }, [ref.current, uploadButtonText, wipCode ]);
+  }, [ref.current, uploadButtonText, wipCode, disableTheUploadButton ]);
+
+  const handleUploadClick = useCallback(async () => {
+    disableTheUploadButton.value = true;
+    await _handleUploadClick();
+    disableTheUploadButton.value = false;
+  }, [ _handleUploadClick ])
 
   return (
     <div class="w-dvw h-dvh bg-[#3b4252]">
       <div class="max-w-screen-md w-full h-full mx-auto my-auto flex flex-col items-center justify-center">
-        <div class="text-white">
-          Select file and then click Upload button, after a moment it should
-          present you a code to copy-paste
-        </div>
+        <p class="text-white bg-[#434c5e] py-4 px-9 m-4 rounded">
+          Select a file and then click the "Upload" button<br />
+          After upload finishes and verifies, the twitch command will pop up.
+        </p>
 
         {wipCode.value !== "" && (
           <div className="py-4 px-9 m-4 bg-[#434c5e] rounded-md text-2xl font-bold text-white">
@@ -93,8 +100,16 @@ export const UploadWip = () => {
           </div>
         )}
 
-        <input class="p-4 m-2 text-white text-xl" ref={ref} type="file"></input>
-        <Button onClick={handleUploadClick}>{ uploadButtonText.value ? uploadButtonText.value : "Upload" }</Button>
+        <input disabled={disableTheUploadButton.value} class="p-4 m-2 text-white text-xl disabled:text-slate-200" ref={ref} type="file"></input>
+        <Button disabled={disableTheUploadButton.value} onClick={handleUploadClick}>{ uploadButtonText.value ? uploadButtonText.value : "Upload" }</Button>
+
+
+        <p class="text-xl text-white bg-[#5e81ac] py-4 px-9 m-4 rounded">
+          Hello, there is a lot of confusion about why the wipbot doesn't work.<br />
+          If you got redirected from wipbot.catse.net - the wipbot won't work.<br />
+          This means that the streamer still runs on the old config.<br />
+          The new version can be obtained from <a class="underline text-[#ebcb8b]" href="https://github.com/Danielduel/wipbot/releases/tag/1.20.0">this GitHub release page</a>.
+        </p>
 
         <p class="text-xl text-white bg-[#434c5e] py-4 px-9 m-4 rounded">
           Should support every kind of map zip<br />
