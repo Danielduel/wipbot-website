@@ -3,6 +3,7 @@ import { S3Client as _S3Client } from "https://deno.land/x/s3_lite_client@0.7.0/
 export namespace S3Client {
   let _current: _S3Client | null = null;
 
+  export type ClientT = _S3Client;
   export const getS3Client = () => {
     if (_current) return _current;
 

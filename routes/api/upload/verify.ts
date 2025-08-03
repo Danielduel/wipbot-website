@@ -4,6 +4,36 @@ import { WipMetadataSchema } from "../../../process/dbCollection/wipMetadata.ts"
 import { S3Client } from "../../../process/s3Client.ts";
 import { UploadWip } from "../../../process/uploadWip.ts";
 
+const waitForPromise = (time: number) => {
+  const p = Promise.withResolvers();
+
+  setTimeout(() => { p.resolve(null); }, time);
+
+  return p.promise;
+}
+
+const waitForWipBlob = async (s3Client: S3Client.ClientT, hash: string) => {
+  let retries = 0;
+  while (!(await s3Client.exists(hash, { bucketName: S3Client.BUCKET.WIP_BLOB }))) {
+    retries++;
+    console.log(`waitForWipBlob awaiting ${hash}, retries ${retries}`);
+
+    if (retries > 4) {
+      console.log(`waitForWipBlob awaiting ${hash} failed`)
+      return null;
+    }
+
+    await waitForPromise(1000 * retries);
+  }
+
+  const blob = await s3Client.getObject(hash, {
+    bucketName: S3Client.BUCKET.WIP_BLOB,
+  });
+  if (!blob.ok) return null;
+
+  return blob;
+}
+
 export const handler = async (
   _req: Request,
   _ctx: FreshContext,
@@ -19,13 +49,8 @@ export const handler = async (
   console.log(metadata);
 
   const s3Client = S3Client.getS3Client();
-  if (!s3Client.exists(hash, { bucketName: S3Client.BUCKET.WIP_BLOB })) {
-    throw 400;
-  }
-  const blobToVerify = await s3Client.getObject(hash, {
-    bucketName: S3Client.BUCKET.WIP_BLOB,
-  });
-  if (!blobToVerify.ok) throw 400;
+  const blobToVerify = await waitForWipBlob(s3Client, hash);
+  if (!blobToVerify) throw 400;
 
   const blob = await UploadWip.verifyWip(await blobToVerify.blob());
   if (!blob) throw 400;

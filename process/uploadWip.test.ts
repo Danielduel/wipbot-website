@@ -11,9 +11,8 @@ const runTest = async (
     const file = await Deno.readFile(
       `./process/__uploadWip/${testFileName}`,
     );
-    const formData = new FormData();
-    formData.set(testFileName, new Blob([file]));
-    const returns = await UploadWip._getBlob(formData);
+    const blob = new Blob([file]);
+    const returns = await UploadWip._getBlob(blob);
 
     if (returns) {
       const resultFileName = `./process/__uploadWip/result-${testFileName}`;
@@ -90,6 +89,13 @@ Deno.test("Upload zip", async (t) => {
   await runTest(t, "good_18.zip");
   await runTest(t, "good_19.zip");
   await runTest(t, "good_20.zip");
+
+  await terminateWorkers();
+});
+
+Deno.test("Upload zip further", async (t) => {
+  await runTest(t, "good_21.zip");
+  await runTest(t, "good_22.zip");
 
   await terminateWorkers();
 });

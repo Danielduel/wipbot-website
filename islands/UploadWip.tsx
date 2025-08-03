@@ -111,6 +111,14 @@ export const UploadWip = () => {
           The new version can be obtained from <a class="underline text-[#ebcb8b]" href="https://github.com/Danielduel/wipbot/releases/tag/1.20.0">this GitHub release page</a>.
         </p>
 
+        <p class="text-xl text-white bg-[#5e81ac] py-4 px-9 m-4 rounded whitespace-break-spaces">
+          Thank you DaRoota and Kacy for reporting the last issue about failed verification
+          on perfectly fine wips. I think it was happening when the mapper had a bit too
+          fast internet speed and was on chromium-based browser.<br />
+          Should be fixed now!
+        </p>
+
+
         <p class="text-xl text-white bg-[#434c5e] py-4 px-9 m-4 rounded">
           Should support every kind of map zip<br />
           In case of issues:{" "}
