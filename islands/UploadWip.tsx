@@ -1,12 +1,16 @@
 import { useCallback, useRef } from "preact/hooks";
 import { useSignal } from "@preact/signals";
-import { Button } from "../components/Button.tsx";
 import { ResponseObject } from "../routes/api/upload/prepare.ts";
+import { IconUpload } from "../components/icons/IconUpload.tsx";
+import { IconDotsMove } from "../components/icons/IconDotsMove.tsx";
+import { JSX } from "preact/jsx-runtime/src/index.d.ts";
+import { IconUploadSuccess } from "../components/icons/IconUploadSuccess.tsx";
 
 export const UploadWip = () => {
   const ref = useRef<null | HTMLInputElement>(null);
   const uploadButtonText = useSignal("");
-  const disableTheUploadButton = useSignal(false);
+  const isFileChosen = useSignal(false);
+  const status = useSignal<"INPUT" | "PROGRESS" | "SUCCESS">("INPUT");
   const wipCode = useSignal("");
   const _handleUploadClick = useCallback(async () => {
     uploadButtonText.value = "Starting";
@@ -64,46 +68,187 @@ export const UploadWip = () => {
       const response = await fetch("/api/upload/verify", {
         method: "POST",
         body: JSON.stringify({
-          hash: presignedUrlData.hash
+          hash: presignedUrlData.hash,
         }),
       });
 
       if (response.ok) {
-        uploadButtonText.value = "Upload verified!"
-        wipCode.value = (await response.text());
+        uploadButtonText.value = "Upload verified!";
+        wipCode.value = await response.text();
+        const _ = Promise.withResolvers();
+        setTimeout(() => {
+          status.value = "SUCCESS";
+          _.resolve(null);
+        }, 400);
+        await _.promise;
         return;
       }
 
-      uploadButtonText.value = "Verifying failed! If it's a proper map - please contact me";
+      uploadButtonText.value =
+        "Verifying failed! If it's a proper map - please contact me";
     }
 
     return true;
-  }, [ref.current, uploadButtonText, wipCode, disableTheUploadButton ]);
+  }, [ref.current, uploadButtonText, wipCode, isFileChosen]);
 
   const handleUploadClick = useCallback(async () => {
-    disableTheUploadButton.value = true;
+    status.value = "PROGRESS";
     await _handleUploadClick();
-    disableTheUploadButton.value = false;
-  }, [ _handleUploadClick ])
+    if (status.value === "PROGRESS") {
+      status.value = "INPUT";
+    }
+  }, [_handleUploadClick]);
 
-  return (
-    <div class="w-dvw h-dvh bg-[#3b4252]">
-      <div class="max-w-screen-md w-full h-full mx-auto my-auto flex flex-col items-center justify-center">
-        <p class="text-white bg-[#434c5e] py-4 px-9 m-4 rounded">
+  /*
+ <p class="text-white bg-[#434c5e] py-4 px-9 m-4 rounded">
           Select a file and then click the "Upload" button<br />
           After upload finishes and verifies, the twitch command will pop up.
         </p>
+  */
 
-        {wipCode.value !== "" && (
-          <div className="py-4 px-9 m-4 bg-[#434c5e] rounded-md text-2xl font-bold text-white">
-            !wip 0{wipCode.value}
+  const handleDrop = useCallback<JSX.DragEventHandler<HTMLDivElement>>((e) => {
+    // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
+    console.log("File(s) dropped");
+
+    e.preventDefault();
+    if (!e.dataTransfer) return;
+
+    if (e.dataTransfer.items) {
+      // Use DataTransferItemList interface to access the file(s)
+      [...e.dataTransfer.items].forEach((item, i) => {
+        // If dropped items aren't files, reject them
+        if (item.kind === "file") {
+          const file = item.getAsFile();
+          if (!file) return;
+          console.log(`… file[${i}].name = ${file.name}`);
+        }
+      });
+    } else {
+      // Use DataTransfer interface to access the file(s)
+      [...e.dataTransfer.files].forEach((file, i) => {
+        console.log(`… file[${i}].name = ${file.name}`);
+      });
+    }
+  }, [handleUploadClick]);
+
+  const isDraggingOver = useSignal(false);
+
+  const handleDragEnter = useCallback<JSX.DragEventHandler<HTMLDivElement>>(
+    (e) => {
+      console.log("Drag start!");
+
+      isDraggingOver.value = true;
+    },
+    [isDraggingOver],
+  );
+
+  const handleDragEnd = useCallback<JSX.DragEventHandler<HTMLDivElement>>(
+    (e) => {
+      console.log("Drag end!");
+
+      isDraggingOver.value = false;
+    },
+    [isDraggingOver],
+  );
+
+  const containerClassName =
+    `px-4 py-3 w-full h-full border-[0.5rem] bg-[#434c5e] rounded-2xl text-center hover:border-gray-400 transition-colors border-dashed`;
+
+  return (
+    <div class="w-dvw h-dvh bg-[#3b4252]">
+      <div class="container mx-auto">
+        <div class="text-2xl mt-10 mb-2 text-white">
+          Add a WIP
+        </div>
+
+        {status.value !== "SUCCESS"
+          ? <></>
+          : (
+            <div className={"border-[#8fbcbb] " + containerClassName}>
+              <IconUploadSuccess class="h-20 w-20 my-6 mx-auto text-[#8fbcbb]" />
+              <div class="text-white text-lg inline-block">
+                Send this code on twitch chat to request the wip
+              </div><br />
+              <div class="text-white my-4 text-3xl bg-[#4c566a] rounded inline-block py-3 px-20">
+                !wip 0{wipCode.value}
+              </div>
+            </div>
+          )}
+
+        {status.value !== "PROGRESS"
+          ? <></>
+          : (
+            <div className={"border-[#81a1c1] " + containerClassName}>
+              <IconDotsMove class="h-20 w-20 my-6 mx-auto text-[#81a1c1]" />
+              <div class="text-white my-4 text-3xl">
+                {uploadButtonText.value}
+              </div>
+            </div>
+          )}
+
+        {status.value !== "INPUT" ? <></> : (
+          <div
+            onDrop={handleDrop}
+            onDragEnter={handleDragEnter}
+            onDragEnd={handleDragEnd}
+            onDragExit={handleDragEnd}
+            onDragLeave={handleDragEnd}
+            class={`${containerClassName} ${
+              isDraggingOver.value ? "border-white" : "border-gray-500"
+            }`}
+          >
+            <IconUpload
+              class={`h-20 w-20 my-6 mx-auto transition-colors ${
+                isDraggingOver.value ? "text-white" : "text-gray-400"
+              }`}
+            />
+            <div class="text-white my-4 text-3xl">
+              Drag your file here
+            </div>
+
+            {false && (
+              <div class="text-gray-400 my-2 text-lg inline-block">
+                <div class="text-left">
+                  Files supported: ZIP, GZ<br />
+                  Maps supported: v1, v2, v3, v4<br />
+                  Mods supported: cinema, vivify<br />
+                </div>
+              </div>
+            )}
+
+            <div class="text-white text-xl">
+              OR
+            </div>
+
+            <label class="" for="wipupload">
+              <div class="text-gray-300 border-gray-300 hover:border-white cursor-pointer hover:text-white text-3xl px-10 py-3 my-4 rounded-3xl border inline-block">
+                BROWSE
+              </div>
+            </label>
+
+            <div class="text-white text-xl">
+              Maximum size: 64MB
+            </div>
           </div>
         )}
 
-        <input disabled={disableTheUploadButton.value} class="p-4 m-2 text-white text-xl disabled:text-slate-200" ref={ref} type="file"></input>
-        <Button disabled={disableTheUploadButton.value} onClick={handleUploadClick}>{ uploadButtonText.value ? uploadButtonText.value : "Upload" }</Button>
+        <input
+          id="wipupload"
+          disabled={isFileChosen.value}
+          class="hidden p-4 m-2 text-white text-xl disabled:text-slate-200"
+          ref={ref}
+          type="file"
+          onChange={handleUploadClick}
+        >
+        </input>
+      </div>
+    </div>
+  );
+};
 
-
+/*
+ *
+ *
         <p class="text-xl text-white bg-[#5e81ac] py-4 px-9 m-4 rounded">
           Hello, there is a lot of confusion about why the wipbot doesn't work.<br />
           If you got redirected from wipbot.catse.net - the wipbot won't work.<br />
@@ -130,7 +275,5 @@ export const UploadWip = () => {
           </a>{" "}
           or directly <code class="p-1">danielduel</code> on Discord
         </p>
-      </div>
-    </div>
-  );
-};
+
+       */

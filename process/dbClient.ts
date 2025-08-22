@@ -7,7 +7,9 @@ export namespace DbClient {
   const getKv = async (): Promise<Deno.Kv> => {
     if (_currentKv) return _currentKv;
 
-    _currentKv = await Deno.openKv();
+    const url = Deno.env.get("KV_URL") ?? "";
+
+    _currentKv = await Deno.openKv(url);
     return _currentKv;
   }
   

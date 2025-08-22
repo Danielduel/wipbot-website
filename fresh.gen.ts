@@ -9,8 +9,10 @@ import * as $api_upload_prepare from "./routes/api/upload/prepare.ts";
 import * as $api_upload_verify from "./routes/api/upload/verify.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
+import * as $new from "./routes/new.tsx";
 import * as $wips_wipcode_ from "./routes/wips/[wipcode].ts";
 import * as $UploadWip from "./islands/UploadWip.tsx";
+import * as $UploadWip_old from "./islands/UploadWip_old.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -22,10 +24,12 @@ const manifest = {
     "./routes/api/upload/verify.ts": $api_upload_verify,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
+    "./routes/new.tsx": $new,
     "./routes/wips/[wipcode].ts": $wips_wipcode_,
   },
   islands: {
     "./islands/UploadWip.tsx": $UploadWip,
+    "./islands/UploadWip_old.tsx": $UploadWip_old,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;
