@@ -9,7 +9,11 @@ export namespace DbClient {
 
     const url = Deno.env.get("KV_URL") ?? "";
 
-    _currentKv = await Deno.openKv(url);
+    if (url) {
+      _currentKv = await Deno.openKv(url);
+    } else {
+      _currentKv = await Deno.openKv();
+    }
     return _currentKv;
   }
   
