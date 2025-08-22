@@ -1,12 +1,9 @@
-import { FreshContext } from "$fresh/server.ts";
+import { FreshContext, Handlers } from "$fresh/server.ts";
 import { DbClient } from "../../process/dbClient.ts";
 import { WipMetadataSchema } from "../../process/dbCollection/wipMetadata.ts";
 import { S3Client } from "../../process/s3Client.ts";
 
-export const handler = async (
-  _req: Request,
-  _ctx: FreshContext,
-): Promise<Response> => {
+const getWipcodeFromContext = (_ctx: FreshContext) => {
   const __wipcode = _ctx.params.wipcode;
 
   if (__wipcode === "***") {
@@ -21,7 +18,13 @@ export const handler = async (
 
   console.log(_wipcode, " -> ", wipcode);
 
-  const dbClient = await DbClient.getDbClient();
+  return wipcode;
+};
+
+const getMetadataForWipcode = async (
+  dbClient: DbClient.DbClient,
+  wipcode: string,
+) => {
   const _metadata = await dbClient.WipMetadata.findByPrimaryIndex(
     "wipcode",
     wipcode,
@@ -32,18 +35,37 @@ export const handler = async (
 
   if (!metadata.verify_success) throw 400;
 
-  const s3Client = S3Client.getS3Client();
-  const exists = await s3Client.exists(metadata.hash, {
-    bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
-  });
-  if (!exists) throw 404;
+  return metadata;
+};
 
-  const data = await s3Client.presignedGetObject(metadata.hash, {
-    bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
-  });
+export const handler: Handlers = {
+  HEAD: async (_req, _ctx) => {
+    const wipcode = getWipcodeFromContext(_ctx);
+    const dbClient = await DbClient.getDbClient();
+    const metadata = await getMetadataForWipcode(dbClient, wipcode);
+    return new Response("OK", {
+      headers: {
+        "Content-Length": "" + metadata.size
+      }
+    });
+  },
+  GET: async (_req: Request, _ctx: FreshContext): Promise<Response> => {
+    const wipcode = getWipcodeFromContext(_ctx);
+    const dbClient = await DbClient.getDbClient();
+    const metadata = await getMetadataForWipcode(dbClient, wipcode);
+    const s3Client = S3Client.getS3Client();
+    const exists = await s3Client.exists(metadata.hash, {
+      bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
+    });
+    if (!exists) throw 404;
 
-  return Response.redirect(data);
+    const data = await s3Client.presignedGetObject(metadata.hash, {
+      bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
+    });
 
-  // const data = await s3Client.getObject(metadata.hash, { bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED });
-  // return new Response(await data.blob());
+    return Response.redirect(data);
+
+    // const data = await s3Client.getObject(metadata.hash, { bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED });
+    // return new Response(await data.blob());
+  },
 };
