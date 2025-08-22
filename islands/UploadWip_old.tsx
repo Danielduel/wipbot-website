@@ -87,7 +87,7 @@ export const UploadWip = () => {
   }, [ _handleUploadClick ])
 
   return (
-    <div class="w-dvw h-dvh bg-[#3b4252]">
+    <div class="w-dvw bg-[#3b4252]">
       <div class="max-w-screen-md w-full h-full mx-auto my-auto flex flex-col items-center justify-center">
         <p class="text-white bg-[#434c5e] py-4 px-9 m-4 rounded">
           Select a file and then click the "Upload" button<br />
