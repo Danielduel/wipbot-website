@@ -1,7 +1,7 @@
 import { Header } from "../components/Header.tsx";
-import { UploadWip } from "../islands/UploadWip.tsx";
+import { UploadWip } from "../islands/UploadWip_old.tsx";
 
-export default function Home() {
+export default function Old() {
   return (
     <>
       <Header />
