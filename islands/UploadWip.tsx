@@ -12,19 +12,11 @@ export const UploadWip = () => {
   const isFileChosen = useSignal(false);
   const status = useSignal<"INPUT" | "PROGRESS" | "SUCCESS">("INPUT");
   const wipCode = useSignal("");
-  const _handleUploadClick = useCallback(async () => {
+
+  const _handleUploadFiles = useCallback(async (fileList: FileList) => {
     uploadButtonText.value = "Starting";
-    if (!ref.current) return false;
 
-    const { current } = ref;
-    console.log(current.files);
-
-    if (!current.files) {
-      uploadButtonText.value = "";
-      return false;
-    }
-
-    for (const file of current.files) {
+    for (const file of fileList) {
       uploadButtonText.value = "Preparing upload";
       // const bytes = await file.bytes();
 
@@ -87,55 +79,56 @@ export const UploadWip = () => {
       uploadButtonText.value =
         "Verifying failed! If it's a proper map - please contact me";
     }
+  }, [uploadButtonText, wipCode, isFileChosen]);
+
+  const handleUploadFiles = useCallback(async (fileList: FileList) => {
+    status.value = "PROGRESS";
+    await _handleUploadFiles(fileList);
+    if (status.value === "PROGRESS") {
+      status.value = "INPUT";
+    }
+  }, [_handleUploadFiles]);
+
+  const handleBrowseUpload = useCallback(async () => {
+    if (!ref.current) return false;
+
+    const { current } = ref;
+    console.log(current.files);
+
+    if (!current.files) {
+      uploadButtonText.value = "";
+      return false;
+    }
+
+    await handleUploadFiles(current.files);
 
     return true;
   }, [ref.current, uploadButtonText, wipCode, isFileChosen]);
 
-  const handleUploadClick = useCallback(async () => {
-    status.value = "PROGRESS";
-    await _handleUploadClick();
-    if (status.value === "PROGRESS") {
-      status.value = "INPUT";
-    }
-  }, [_handleUploadClick]);
+  const handleDropUpload = useCallback<JSX.DragEventHandler<HTMLDivElement>>(
+    async (e) => {
+      // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
+      console.log("File(s) dropped");
 
-  /*
- <p class="text-white bg-[#434c5e] py-4 px-9 m-4 rounded">
-          Select a file and then click the "Upload" button<br />
-          After upload finishes and verifies, the twitch command will pop up.
-        </p>
-  */
+      e.preventDefault();
+      e.stopPropagation();
 
-  const handleDrop = useCallback<JSX.DragEventHandler<HTMLDivElement>>((e) => {
-    // https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/File_drag_and_drop
-    console.log("File(s) dropped");
+      if (!e.dataTransfer) return;
+      if (!e.dataTransfer.files) return;
 
-    e.preventDefault();
-    if (!e.dataTransfer) return;
-
-    if (e.dataTransfer.items) {
-      // Use DataTransferItemList interface to access the file(s)
-      [...e.dataTransfer.items].forEach((item, i) => {
-        // If dropped items aren't files, reject them
-        if (item.kind === "file") {
-          const file = item.getAsFile();
-          if (!file) return;
-          console.log(`… file[${i}].name = ${file.name}`);
-        }
-      });
-    } else {
-      // Use DataTransfer interface to access the file(s)
-      [...e.dataTransfer.files].forEach((file, i) => {
-        console.log(`… file[${i}].name = ${file.name}`);
-      });
-    }
-  }, [handleUploadClick]);
+      await handleUploadFiles(e.dataTransfer.files);
+    },
+    [handleUploadFiles],
+  );
 
   const isDraggingOver = useSignal(false);
 
   const handleDragEnter = useCallback<JSX.DragEventHandler<HTMLDivElement>>(
     (e) => {
       console.log("Drag start!");
+
+      e.preventDefault();
+      e.stopPropagation();
 
       isDraggingOver.value = true;
     },
@@ -146,13 +139,24 @@ export const UploadWip = () => {
     (e) => {
       console.log("Drag end!");
 
+      e.preventDefault();
+      e.stopPropagation();
+
       isDraggingOver.value = false;
     },
     [isDraggingOver],
   );
 
+  const handleIgnore = useCallback((e: Event) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
   const containerClassName =
     `px-4 py-3 w-full h-full border-[0.5rem] bg-[#434c5e] rounded-2xl text-center hover:border-gray-400 transition-colors border-dashed`;
+  const subcontainerClassName = isDraggingOver.value === true
+    ? "pointer-events-none"
+    : "";
 
   return (
     <div class="w-dvw h-dvh bg-[#3b4252]">
@@ -168,7 +172,8 @@ export const UploadWip = () => {
               <IconUploadSuccess class="h-20 w-20 my-6 mx-auto text-[#8fbcbb]" />
               <div class="text-white text-lg inline-block">
                 Send this code on twitch chat to request the wip
-              </div><br />
+              </div>
+              <br />
               <div class="text-white my-4 text-3xl bg-[#4c566a] rounded inline-block py-3 px-20">
                 !wip 0{wipCode.value}
               </div>
@@ -188,46 +193,50 @@ export const UploadWip = () => {
 
         {status.value !== "INPUT" ? <></> : (
           <div
-            onDrop={handleDrop}
+            onDragStart={handleIgnore}
+            onDragOver={handleDragEnter}
             onDragEnter={handleDragEnter}
-            onDragEnd={handleDragEnd}
-            onDragExit={handleDragEnd}
             onDragLeave={handleDragEnd}
+            onDragEnd={handleDragEnd}
+            onDrop={handleDropUpload}
+            // onDragExit={handleDragEnd}
             class={`${containerClassName} ${
               isDraggingOver.value ? "border-white" : "border-gray-500"
             }`}
           >
-            <IconUpload
-              class={`h-20 w-20 my-6 mx-auto transition-colors ${
-                isDraggingOver.value ? "text-white" : "text-gray-400"
-              }`}
-            />
-            <div class="text-white my-4 text-3xl">
-              Drag your file here
-            </div>
+            <div class={subcontainerClassName}>
+              <IconUpload
+                class={`h-20 w-20 my-6 mx-auto transition-colors ${
+                  isDraggingOver.value ? "text-white" : "text-gray-400"
+                }`}
+              />
+              <div class="text-white my-4 text-3xl">
+                Drag your file here
+              </div>
 
-            {false && (
-              <div class="text-gray-400 my-2 text-lg inline-block">
-                <div class="text-left">
-                  Files supported: ZIP, GZ<br />
-                  Maps supported: v1, v2, v3, v4<br />
-                  Mods supported: cinema, vivify<br />
+              {false && (
+                <div class="text-gray-400 my-2 text-lg inline-block">
+                  <div class="text-left">
+                    Files supported: ZIP, GZ<br />
+                    Maps supported: v1, v2, v3, v4<br />
+                    Mods supported: cinema, vivify<br />
+                  </div>
                 </div>
+              )}
+
+              <div class="text-white text-xl">
+                OR
               </div>
-            )}
 
-            <div class="text-white text-xl">
-              OR
-            </div>
+              <label class="" for="wipupload">
+                <div class="text-gray-300 border-gray-300 hover:border-white cursor-pointer hover:text-white text-3xl px-10 py-3 my-4 rounded-3xl border inline-block">
+                  BROWSE
+                </div>
+              </label>
 
-            <label class="" for="wipupload">
-              <div class="text-gray-300 border-gray-300 hover:border-white cursor-pointer hover:text-white text-3xl px-10 py-3 my-4 rounded-3xl border inline-block">
-                BROWSE
+              <div class="text-white text-xl">
+                Maximum size: 64MB
               </div>
-            </label>
-
-            <div class="text-white text-xl">
-              Maximum size: 64MB
             </div>
           </div>
         )}
@@ -238,9 +247,8 @@ export const UploadWip = () => {
           class="hidden p-4 m-2 text-white text-xl disabled:text-slate-200"
           ref={ref}
           type="file"
-          onChange={handleUploadClick}
-        >
-        </input>
+          onChange={handleBrowseUpload}
+        />
       </div>
     </div>
   );

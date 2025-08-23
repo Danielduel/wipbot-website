@@ -64,8 +64,5 @@ export const handler: Handlers = {
     });
 
     return Response.redirect(data);
-
-    // const data = await s3Client.getObject(metadata.hash, { bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED });
-    // return new Response(await data.blob());
   },
 };
