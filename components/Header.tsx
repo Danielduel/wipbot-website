@@ -15,7 +15,7 @@ export function Header(props: JSX.HTMLAttributes<HTMLDivElement>) {
     >
       <div class="container mx-auto">
         <Link to="/">Home</Link>
-        <Link to="/new">New upload form</Link>
+        <Link to="/old">Old upload form</Link>
         <Link to="https://statistics.wipbot.com/">Stats</Link>
       </div>
     </div>
