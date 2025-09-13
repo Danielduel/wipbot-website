@@ -172,7 +172,7 @@ export namespace UploadWip {
     const infoDat = _infoDat!.data!;
     const infoInfo: ReconstructionEntry[] = [
       reconstructionEntry("Info.dat", false),
-      reconstructionEntry(infoDat.coverImageFilename, false),
+      reconstructionEntry(infoDat.coverImageFilename, true),
       reconstructionEntry(infoDat.songPreviewFilename, false),
       reconstructionEntry(infoDat.audio.songFilename, true),
       reconstructionEntry(infoDat.audio.audioDataFilename, false),

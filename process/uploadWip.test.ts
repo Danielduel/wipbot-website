@@ -100,6 +100,13 @@ Deno.test("Upload zip further", async (t) => {
   await terminateWorkers();
 });
 
+Deno.test("Upload zip v4", async (t) => {
+  await runTest(t, "good_v4_1.zip");
+
+  await terminateWorkers();
+});
+
+
 Deno.test("Generate names", () => {
   UploadWip._generateName(5, 0);
   UploadWip._generateName(5, 100);
