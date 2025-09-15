@@ -2,7 +2,12 @@ import { DbClient } from "./dbClient.ts";
 import { WipZipFileVerification } from "./WipZipFileVerification.ts";
  
 export namespace UploadWip {  
-  export const _getBlob = async (blobToVerify: Blob): Promise<Blob | null> => {
+  export type Verification = {
+    blob: Blob | null;
+    status: WipZipFileVerification["status"]
+  };
+
+  export const _getBlob = async (blobToVerify: Blob): Promise<Verification | null> => {
     try {
       const wipZipFileVerificationM = await WipZipFileVerification.fromBlobM(blobToVerify);
       
@@ -26,7 +31,7 @@ export namespace UploadWip {
         throw 400;
       }
 
-      return finalBlob;
+      return { blob: finalBlob, status: wipZipFileVerification.status };
     } catch (_) {
       console.error(_);
       return null;
@@ -85,11 +90,10 @@ export namespace UploadWip {
     return key;
   };
 
-  export const verifyWip = async (blobToVerify: Blob): Promise<Blob | null> => {
-    const blob = await _getBlob(blobToVerify);
-    if (blob) {
-      return blob;
-    }
-    return null;
+  export const verifyWip = async (blobToVerify: Blob): Promise<Verification | null> => {
+    const verification = await _getBlob(blobToVerify);
+    if (!verification) return null;
+    if (!verification.blob) return { blob: null, status: verification.status };
+    return verification;
   };
 }

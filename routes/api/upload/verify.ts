@@ -34,10 +34,10 @@ const waitForWipBlob = async (s3Client: S3Client.ClientT, hash: string) => {
   return blob;
 }
 
-export const handler = async (
+export const _handler = async (
   _req: Request,
   _ctx: FreshContext,
-): Promise<Response> => {
+) => {
   const hash = (await _req.json()).hash;
   if (!hash) throw 400;
 
@@ -46,16 +46,15 @@ export const handler = async (
   if (!_metadata || !_metadata.value) throw 400;
   const metadata = _metadata.value as typeof WipMetadataSchema["_type"];
 
-  console.log(metadata);
-
   const s3Client = S3Client.getS3Client();
   const blobToVerify = await waitForWipBlob(s3Client, hash);
   if (!blobToVerify) throw 400;
 
-  const blob = await UploadWip.verifyWip(await blobToVerify.blob());
-  if (!blob) throw 400;
+  const verification = await UploadWip.verifyWip(await blobToVerify.blob());
+  if (!verification) throw 400;
+  if (!verification.blob) throw 400;
 
-  await s3Client.putObject(hash, await blob.bytes(), {
+  await s3Client.putObject(hash, await verification.blob.bytes(), {
     bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
     metadata: { Expires: new Date(Date.now() + 5 * 1000).toString() },
   });
@@ -71,5 +70,19 @@ export const handler = async (
     },
   );
 
-  return new Response(metadata.wipcode);
+  return {
+    wipcode: metadata.wipcode,
+    status: verification.status,
+  } as const;
 };
+
+export const handler = async (
+  _req: Request,
+  _ctx: FreshContext,
+): Promise<Response> => {
+  const result = await _handler(_req, _ctx);
+
+  return Response.json(result);
+};
+export type VerifyEndpointReponse = Awaited<ReturnType<typeof _handler>>;
+

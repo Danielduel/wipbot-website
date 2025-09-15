@@ -22,7 +22,6 @@ export function Header(props: JSX.HTMLAttributes<HTMLDivElement>) {
     >
       <div class="container mx-auto">
         <Link href="/">Home</Link>
-        <Link href="/old">Old upload form</Link>
         <Link href="https://statistics.wipbot.com/" target="_blank">Stats</Link>
         <Link href="https://bsmg.wiki/mapping/basic-mapping.html" target="_blank">
           Mapping guide

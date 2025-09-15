@@ -5,6 +5,8 @@ import { IconUpload } from "../components/icons/IconUpload.tsx";
 import { IconDotsMove } from "../components/icons/IconDotsMove.tsx";
 import { JSX } from "preact/jsx-runtime/src/index.d.ts";
 import { IconUploadSuccess } from "../components/icons/IconUploadSuccess.tsx";
+import { UploadWip } from "../process/uploadWip.ts";
+import { VerifyEndpointReponse } from "../routes/api/upload/verify.ts";
 
 export const UploadWip = () => {
   const ref = useRef<null | HTMLInputElement>(null);
@@ -66,7 +68,9 @@ export const UploadWip = () => {
 
       if (response.ok) {
         uploadButtonText.value = "Upload verified!";
-        wipCode.value = await response.text();
+        const verification = (await response.json()) as VerifyEndpointReponse;
+        wipCode.value = verification.wipcode;
+        console.log(verification.status);
         const _ = Promise.withResolvers();
         setTimeout(() => {
           status.value = "SUCCESS";

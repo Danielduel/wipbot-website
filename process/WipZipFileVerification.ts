@@ -79,7 +79,7 @@ export class WipZipFileVerification extends WipZipFile {
     return Err(error);
   }
 
-  status = new WipZipFileVerificationMetadata();
+  status: WipZipFileVerificationMetadata = new WipZipFileVerificationMetadata();
 
   public verify = () => {
     const infoDatObject = this.readInfoDatObject();
