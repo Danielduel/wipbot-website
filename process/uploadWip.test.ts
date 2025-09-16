@@ -1,6 +1,6 @@
-import { assertEquals } from "jsr:@std/assert";
+import { terminateWorkers } from "../deps/zipjs.ts";
+import { assertEquals, assertNotEquals } from "../deps/test.ts";
 import { UploadWip } from "./uploadWip.ts";
-import { terminateWorkers } from "https://deno.land/x/zipjs@v2.7.69/index.js";
 
 const runTest = async (
   t: Deno.TestContext,
@@ -25,12 +25,16 @@ const runTest = async (
         }
       })();
       if (!exists) {
-        await Deno.writeFile(resultFileName, await returns.bytes());
+        assertNotEquals(returns, null);
+        assertNotEquals(returns.blob, null);
+        await Deno.writeFile(resultFileName, await returns.blob!.bytes());
       } else {
         const previousFile = await Deno.readFile(resultFileName);
         const blob = new Blob([ previousFile.buffer ]);
         const previous = await blob.bytes();
-        const next = await returns.bytes();
+        assertNotEquals(returns, null);
+        assertNotEquals(returns.blob, null);
+        const next = await returns.blob!.bytes();
 
         assertEquals(previous.length, next.length, "Blob data length mismatch");
 

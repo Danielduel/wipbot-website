@@ -2,68 +2,7 @@ import { WipZipFile } from "./WipZipFile.ts";
 import { InfoDatSchema } from "../zod-schema/Info.dat.schema.ts";
 import { InfoDatV4Schema } from "../zod-schema/Info.dat.v4.schema.ts";
 import { Err, Ok, Result } from "../deps/optionals.ts";
-
-class VerificationMetadata {
-  public ok = false;
-  public error = false;
-  public warn = false;
-  public done = false;
-
-  public warns: string[] = [];
-  public errors: string[] = [];
-
-  public pushError(m: string) {
-    this.error = true;
-    this.ok = false;
-    this.done = true;
-    this.errors.push(m);
-    return this;
-  }
-
-  public pushWarn(m: string) {
-    this.warn = true;
-    this.warns.push(m);
-    return this;
-  }
-
-  public finish() {
-    if (!this.error) {
-      this.ok = true;
-    }
-    this.done = true;
-    return this;
-  }
-}
-
-class WipZipFileVerificationMetadata extends VerificationMetadata {
-  private proxy = (verificationMetadata: VerificationMetadata) => {
-    const self = this;
-    const proxied = verificationMetadata;
-    const compose =
-      <T extends (...args: Parameters<T>) => void>(...fnArr: T[]) =>
-      (...args: Parameters<T>) => {
-        fnArr.forEach((x) => x(...args));
-        return proxied;
-      };
-    proxied.pushError = compose(
-      self.pushError,
-      proxied.pushError,
-    );
-    proxied.pushWarn = compose(
-      self.pushWarn,
-      proxied.pushWarn,
-    );
-    return verificationMetadata;
-  };
-
-  private metadata() {
-    return this.proxy(new VerificationMetadata());
-  }
-
-  public details = {
-    infoDat: this.metadata(),
-  };
-}
+import { WipZipFileVerificationMetadata } from "./WipZipFileVerificationMetadata.ts";
 
 export class WipZipFileVerification extends WipZipFile {
   constructor(wipFileBlob: Blob) {

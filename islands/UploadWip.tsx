@@ -5,7 +5,6 @@ import { IconUpload } from "../components/icons/IconUpload.tsx";
 import { IconDotsMove } from "../components/icons/IconDotsMove.tsx";
 import { JSX } from "preact/jsx-runtime/src/index.d.ts";
 import { IconUploadSuccess } from "../components/icons/IconUploadSuccess.tsx";
-import { UploadWip } from "../process/uploadWip.ts";
 import { VerifyEndpointReponse } from "../routes/api/upload/verify.ts";
 
 export const UploadWip = () => {
@@ -13,7 +12,21 @@ export const UploadWip = () => {
   const uploadButtonText = useSignal("");
   const isFileChosen = useSignal(false);
   const status = useSignal<"INPUT" | "PROGRESS" | "SUCCESS">("INPUT");
-  const wipCode = useSignal("");
+  const verifyResponse = useSignal<VerifyEndpointReponse | null>({
+    wipcode: "ASDASD",
+    status: {
+      details: {
+        infoDat: {
+          done: true,
+          error: false,
+          ok: false,
+          warns: [],
+          warn: false,
+          errors: []
+        }
+      }
+    }
+  });
 
   const _handleUploadFiles = useCallback(async (fileList: FileList) => {
     uploadButtonText.value = "Starting";
@@ -69,8 +82,7 @@ export const UploadWip = () => {
       if (response.ok) {
         uploadButtonText.value = "Upload verified!";
         const verification = (await response.json()) as VerifyEndpointReponse;
-        wipCode.value = verification.wipcode;
-        console.log(verification.status);
+        verifyResponse.value = verification;
         const _ = Promise.withResolvers();
         setTimeout(() => {
           status.value = "SUCCESS";
@@ -83,7 +95,7 @@ export const UploadWip = () => {
       uploadButtonText.value =
         "Verifying failed! If it's a proper map - please contact me";
     }
-  }, [uploadButtonText, wipCode, isFileChosen]);
+  }, [uploadButtonText, verifyResponse, isFileChosen]);
 
   const handleUploadFiles = useCallback(async (fileList: FileList) => {
     status.value = "PROGRESS";
@@ -107,7 +119,7 @@ export const UploadWip = () => {
     await handleUploadFiles(current.files);
 
     return true;
-  }, [ref.current, uploadButtonText, wipCode, isFileChosen]);
+  }, [ref.current, uploadButtonText, isFileChosen]);
 
   const handleDropUpload = useCallback<JSX.DragEventHandler<HTMLDivElement>>(
     async (e) => {
@@ -179,7 +191,7 @@ export const UploadWip = () => {
               </div>
               <br />
               <div class="text-white my-4 text-3xl bg-[#4c566a] rounded inline-block py-3 px-20">
-                !wip 0{wipCode.value}
+                !wip 0{verifyResponse.value?.wipcode}
               </div>
             </div>
           )}
