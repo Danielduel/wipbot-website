@@ -29,4 +29,3 @@ export class WipZipFileVerificationMetadata extends VerificationMetadata {
     infoDat: this.metadata(),
   };
 }
-

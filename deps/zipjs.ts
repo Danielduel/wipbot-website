@@ -1,15 +1,9 @@
 // @ts-types="https://deno.land/x/zipjs@v2.7.69/index.d.ts"
 import {
   BlobWriter,
+  terminateWorkers,
   ZipReader,
   ZipWriter,
-  terminateWorkers,
-} from "https://deno.land/x/zipjs@v2.7.69/index.js";
+} from "jsr:@zip-js/zip-js";
 
-export {
-  BlobWriter,
-  ZipReader,
-  ZipWriter,
-  terminateWorkers,
-};
-
+export { BlobWriter, terminateWorkers, ZipReader, ZipWriter };

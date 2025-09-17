@@ -1,6 +1,4 @@
-import { WipZipFileVerificationMetadata } from "./WipZipFileVerificationMetadata.ts"
+import { WipZipFileVerificationMetadata } from "./WipZipFileVerificationMetadata.ts";
 
 Deno.test("", () => {
-
-
-})
+});

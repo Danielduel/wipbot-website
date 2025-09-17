@@ -29,5 +29,3 @@ export class VerificationMetadata {
     return this;
   }
 }
-
-

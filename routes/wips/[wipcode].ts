@@ -1,7 +1,8 @@
-import { FreshContext, Handlers } from "$fresh/server.ts";
+import { FreshContext } from "fresh";
 import { DbClient } from "../../process/dbClient.ts";
 import { WipMetadataSchema } from "../../process/dbCollection/wipMetadata.ts";
 import { S3Client } from "../../process/s3Client.ts";
+import { Handlers } from "fresh/compat";
 
 const getWipcodeFromContext = (_ctx: FreshContext) => {
   const __wipcode = _ctx.params.wipcode;
@@ -39,17 +40,17 @@ const getMetadataForWipcode = async (
 };
 
 export const handler: Handlers = {
-  HEAD: async (_req, _ctx) => {
+  HEAD: async (_ctx) => {
     const wipcode = getWipcodeFromContext(_ctx);
     const dbClient = await DbClient.getDbClient();
     const metadata = await getMetadataForWipcode(dbClient, wipcode);
     return new Response("OK", {
       headers: {
-        "Content-Length": "" + metadata.size
-      }
+        "Content-Length": "" + metadata.size,
+      },
     });
   },
-  GET: async (_req: Request, _ctx: FreshContext): Promise<Response> => {
+  GET: async (_ctx: FreshContext): Promise<Response> => {
     const wipcode = getWipcodeFromContext(_ctx);
     const dbClient = await DbClient.getDbClient();
     const metadata = await getMetadataForWipcode(dbClient, wipcode);

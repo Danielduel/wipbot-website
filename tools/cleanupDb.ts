@@ -8,14 +8,16 @@ let totalRecords = 0;
 const wipMetadataIdArrToRemove: string[] = [];
 await db.WipMetadata.forEach(async (x) => {
   totalRecords++;
-  const exists = await s3.exists(x.value.hash, { bucketName: S3Client.BUCKET.WIP_BLOB });
+  const exists = await s3.exists(x.value.hash, {
+    bucketName: S3Client.BUCKET.WIP_BLOB,
+  });
   if (exists) return;
-
 
   wipMetadataIdArrToRemove.push(x.id);
 });
 
-console.log(`Deleting ${wipMetadataIdArrToRemove.length} out of ${totalRecords} WipMetadata items`)
+console.log(
+  `Deleting ${wipMetadataIdArrToRemove.length} out of ${totalRecords} WipMetadata items`,
+);
 
 await db.WipMetadata.delete(...wipMetadataIdArrToRemove);
-

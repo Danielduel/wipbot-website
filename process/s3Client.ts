@@ -1,4 +1,4 @@
-import { S3Client as _S3Client } from "https://deno.land/x/s3_lite_client@0.7.0/mod.ts";
+import { S3Client as _S3Client } from "s3_lite_client";
 
 export namespace S3Client {
   let _current: _S3Client | null = null;
@@ -37,6 +37,5 @@ export namespace S3Client {
   export enum BUCKET {
     WIP_BLOB = "wipbot-zip-blob",
     WIP_BLOB_VERIFIED = "wipbot-zip-verified",
-  } 
+  }
 }
-

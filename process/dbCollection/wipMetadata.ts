@@ -7,7 +7,7 @@ export const WipMetadataSchema = z.object({
 
   size: z.number(),
   removed: z.boolean(),
-  
+
   verify_started: z.boolean(),
   verify_finished: z.boolean(),
   verify_success: z.boolean(),
@@ -20,6 +20,5 @@ export const WipMetadata = collection(WipMetadataSchema, {
     hash: "primary",
     wipcode: "primary",
   },
-  idGenerator: (x) => x.hash
+  idGenerator: (x) => x.hash,
 });
-

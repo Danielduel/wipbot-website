@@ -1,25 +1,29 @@
-import { FreshContext } from "$fresh/server.ts";
 import { DbClient } from "../../../process/dbClient.ts";
 import { WipMetadataSchema } from "../../../process/dbCollection/wipMetadata.ts";
 import { S3Client } from "../../../process/s3Client.ts";
 import { UploadWip } from "../../../process/uploadWip.ts";
+import { define } from "../../../utils.ts";
 
 const waitForPromise = (time: number) => {
   const p = Promise.withResolvers();
 
-  setTimeout(() => { p.resolve(null); }, time);
+  setTimeout(() => {
+    p.resolve(null);
+  }, time);
 
   return p.promise;
-}
+};
 
 const waitForWipBlob = async (s3Client: S3Client.ClientT, hash: string) => {
   let retries = 0;
-  while (!(await s3Client.exists(hash, { bucketName: S3Client.BUCKET.WIP_BLOB }))) {
+  while (
+    !(await s3Client.exists(hash, { bucketName: S3Client.BUCKET.WIP_BLOB }))
+  ) {
     retries++;
     console.log(`waitForWipBlob awaiting ${hash}, retries ${retries}`);
 
     if (retries > 4) {
-      console.log(`waitForWipBlob awaiting ${hash} failed`)
+      console.log(`waitForWipBlob awaiting ${hash} failed`);
       return null;
     }
 
@@ -32,19 +36,18 @@ const waitForWipBlob = async (s3Client: S3Client.ClientT, hash: string) => {
   if (!blob.ok) return null;
 
   return blob;
-}
+};
 
 export const _handler = async (
-  _req: Request,
-  _ctx: FreshContext,
+  req: Request,
 ) => {
-  const hash = (await _req.json()).hash;
+  const hash = (await req.json()).hash;
   if (!hash) throw 400;
 
   const dbClient = await DbClient.getDbClient();
   const _metadata = await dbClient.WipMetadata.findByPrimaryIndex("hash", hash);
   if (!_metadata || !_metadata.value) throw 400;
-  const metadata = _metadata.value as typeof WipMetadataSchema["_type"];
+  const metadata = _metadata.value as typeof WipMetadataSchema.shape;
 
   const s3Client = S3Client.getS3Client();
   const blobToVerify = await waitForWipBlob(s3Client, hash);
@@ -76,13 +79,11 @@ export const _handler = async (
   } as const;
 };
 
-export const handler = async (
-  _req: Request,
-  _ctx: FreshContext,
-): Promise<Response> => {
-  const result = await _handler(_req, _ctx);
+export const handler = define.handlers({
+  POST: async (ctx) => {
+    const result = await _handler(ctx.req);
 
-  return Response.json(result);
-};
+    return Response.json(result);
+  },
+});
 export type VerifyEndpointReponse = Awaited<ReturnType<typeof _handler>>;
-

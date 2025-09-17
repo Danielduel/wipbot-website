@@ -17,4 +17,3 @@ export const InfoDatV4Schema = z.object({
   difficultyBeatmaps: z.array(InfoDatV4DifficultyBeatmapSchema),
   customData: z.object({}).optional(),
 });
-

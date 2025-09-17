@@ -30,7 +30,7 @@ const runTest = async (
         await Deno.writeFile(resultFileName, await returns.blob!.bytes());
       } else {
         const previousFile = await Deno.readFile(resultFileName);
-        const blob = new Blob([ previousFile.buffer ]);
+        const blob = new Blob([previousFile.buffer]);
         const previous = await blob.bytes();
         assertNotEquals(returns, null);
         assertNotEquals(returns.blob, null);
@@ -109,7 +109,6 @@ Deno.test("Upload zip v4", async (t) => {
 
   await terminateWorkers();
 });
-
 
 Deno.test("Generate names", () => {
   UploadWip._generateName(5, 0);

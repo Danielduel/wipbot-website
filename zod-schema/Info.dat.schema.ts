@@ -29,6 +29,5 @@ export const InfoDatSchema = z.object({
   _coverImageFilename: z.string(),
   _songFilename: z.string(),
   // ...
-  _difficultyBeatmapSets: z.array(InfoDatDifficultyBeatmapSetsSchema)
+  _difficultyBeatmapSets: z.array(InfoDatDifficultyBeatmapSetsSchema),
 });
-

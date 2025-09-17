@@ -23,10 +23,16 @@ export function Header(props: JSX.HTMLAttributes<HTMLDivElement>) {
       <div class="container mx-auto">
         <Link href="/">Home</Link>
         <Link href="https://statistics.wipbot.com/" target="_blank">Stats</Link>
-        <Link href="https://bsmg.wiki/mapping/basic-mapping.html" target="_blank">
+        <Link
+          href="https://bsmg.wiki/mapping/basic-mapping.html"
+          target="_blank"
+        >
           Mapping guide
         </Link>
-        <Link href="https://github.com/Danielduel/wipbot/releases/tag/1.20.0" target="_blank">
+        <Link
+          href="https://github.com/Danielduel/wipbot/releases/tag/1.20.0"
+          target="_blank"
+        >
           Latest mod release
         </Link>
       </div>

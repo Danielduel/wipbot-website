@@ -22,10 +22,10 @@ export const UploadWip = () => {
           ok: false,
           warns: [],
           warn: false,
-          errors: []
-        }
-      }
-    }
+          errors: [],
+        },
+      },
+    },
   });
 
   const _handleUploadFiles = useCallback(async (fileList: FileList) => {

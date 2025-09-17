@@ -1,4 +1,3 @@
-import { Buffer } from "https://deno.land/std@0.224.0/streams/buffer.ts";
+import { Buffer } from "@std/streams";
 
 export { Buffer };
-

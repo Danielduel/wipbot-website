@@ -15,27 +15,26 @@ export namespace DbClient {
       _currentKv = await Deno.openKv();
     }
     return _currentKv;
-  }
-  
+  };
+
   const _createDbClient = (kv: Deno.Kv) => {
     const kvClient = kvdex({
       kv,
       schema: {
-        WipMetadata
-      }
+        WipMetadata,
+      },
     });
 
     return kvClient;
-  }
-
+  };
 
   const createDbClient = async () => {
     const kv = await getKv();
     return _createDbClient(kv);
-  }
+  };
 
-  export type DbClient = ReturnType<typeof _createDbClient>; 
-  let _currentDb: DbClient | null = null; 
+  export type DbClient = ReturnType<typeof _createDbClient>;
+  let _currentDb: DbClient | null = null;
   export const getDbClient = async (): Promise<DbClient> => {
     if (_currentDb) return _currentDb;
 
@@ -43,4 +42,3 @@ export namespace DbClient {
     return _currentDb;
   };
 }
-

@@ -59,7 +59,9 @@ export class WipZipFile {
         const buffer = new Buffer();
         totalUncompressedSize += zipFileContent.uncompressedSize;
         if (totalUncompressedSize > uncompressedTotalSizeLimit) {
-          return await returns(new Error("Uncompressed size is over the limit"));
+          return await returns(
+            new Error("Uncompressed size is over the limit"),
+          );
         }
         if (zipFileContent.uncompressedSize > uncompressedItemSizeLimit) {
           return await returns(
@@ -82,7 +84,9 @@ export class WipZipFile {
       .toArray()
       .sort((x, y) => x.split("/").length - y.split("/").length)[0];
     if (!nestedInfoDatPath) {
-      return await returns(new Error("Couldn't find Info.dat file in the archive"));
+      return await returns(
+        new Error("Couldn't find Info.dat file in the archive"),
+      );
     }
 
     const nestedInfoDatPathSplit = nestedInfoDatPath.split("Info.dat");
