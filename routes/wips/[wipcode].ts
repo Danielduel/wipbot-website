@@ -1,11 +1,9 @@
-import { FreshContext } from "fresh";
 import { DbClient } from "../../process/dbClient.ts";
-import { WipMetadataSchema } from "../../process/dbCollection/wipMetadata.ts";
 import { S3Client } from "../../process/s3Client.ts";
-import { Handlers } from "fresh/compat";
+import { define } from "../../utils.ts";
 
-const getWipcodeFromContext = (_ctx: FreshContext) => {
-  const __wipcode = _ctx.params.wipcode;
+const getWipcodeFromContext = (wipcodeParam: string) => {
+  const __wipcode = wipcodeParam;
 
   if (__wipcode === "***") {
     // It's a censored link by twitch
@@ -16,8 +14,6 @@ const getWipcodeFromContext = (_ctx: FreshContext) => {
     ? __wipcode.split(".zip")[0]
     : __wipcode;
   const wipcode = _wipcode.substring(1);
-
-  console.log(_wipcode, " -> ", wipcode);
 
   return wipcode;
 };
@@ -32,16 +28,17 @@ const getMetadataForWipcode = async (
   );
 
   if (!_metadata || !_metadata.value) throw 400;
-  const metadata = _metadata.value as typeof WipMetadataSchema["_type"];
+  const metadata = _metadata.value;
 
   if (!metadata.verify_success) throw 400;
 
   return metadata;
 };
 
-export const handler: Handlers = {
-  HEAD: async (_ctx) => {
-    const wipcode = getWipcodeFromContext(_ctx);
+export const handler = define.handlers({
+  HEAD: async ({ params }) => {
+    const wipcode = getWipcodeFromContext(params.wipcode);
+    console.log(`HEAD ${wipcode}`);
     const dbClient = await DbClient.getDbClient();
     const metadata = await getMetadataForWipcode(dbClient, wipcode);
     return new Response("OK", {
@@ -50,8 +47,9 @@ export const handler: Handlers = {
       },
     });
   },
-  GET: async (_ctx: FreshContext): Promise<Response> => {
-    const wipcode = getWipcodeFromContext(_ctx);
+  GET: async ({ params }): Promise<Response> => {
+    const wipcode = getWipcodeFromContext(params.wipcode);
+    console.log(`GET ${wipcode}`);
     const dbClient = await DbClient.getDbClient();
     const metadata = await getMetadataForWipcode(dbClient, wipcode);
     const s3Client = S3Client.getS3Client();
@@ -66,4 +64,5 @@ export const handler: Handlers = {
 
     return Response.redirect(data);
   },
-};
+});
+

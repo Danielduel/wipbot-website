@@ -1,6 +1,7 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@bradenmacdonald/s3-lite-client@*": "0.9.2",
     "jsr:@deno/esbuild-plugin@^1.2.0": "1.2.0",
     "jsr:@deno/loader@~0.3.2": "0.3.5",
     "jsr:@deno/loader@~0.3.3": "0.3.5",
@@ -8,10 +9,13 @@
     "jsr:@fresh/core@2": "2.1.0",
     "jsr:@fresh/core@^2.1.0": "2.1.0",
     "jsr:@fresh/plugin-vite@^1.0.3": "1.0.3",
+    "jsr:@olli/kvdex@0.36.1": "0.36.1",
     "jsr:@olli/kvdex@3.4.0": "3.4.0",
+    "jsr:@std/bytes@0.220": "0.220.1",
     "jsr:@std/bytes@^1.0.4": "1.0.6",
     "jsr:@std/bytes@^1.0.6": "1.0.6",
     "jsr:@std/cli@1.0.12": "1.0.12",
+    "jsr:@std/collections@0.220": "0.220.1",
     "jsr:@std/collections@^1.0.9": "1.1.3",
     "jsr:@std/dotenv@~0.225.5": "0.225.5",
     "jsr:@std/encoding@1": "1.0.10",
@@ -27,6 +31,7 @@
     "jsr:@std/path@1": "1.1.2",
     "jsr:@std/path@^1.1.1": "1.1.2",
     "jsr:@std/semver@1": "1.0.5",
+    "jsr:@std/ulid@0.220": "0.220.1",
     "jsr:@std/ulid@1": "1.0.0",
     "jsr:@std/uuid@^1.0.7": "1.0.9",
     "jsr:@zip-js/zip-js@^2.7.69": "2.8.2",
@@ -54,6 +59,9 @@
     "npm:zod@^3.24.0": "3.25.76"
   },
   "jsr": {
+    "@bradenmacdonald/s3-lite-client@0.9.2": {
+      "integrity": "3aa04123181dc8b077ed8e52ea4a61f16dd1b599eaee7e8eff95d241e1414f44"
+    },
     "@deno/esbuild-plugin@1.2.0": {
       "integrity": "04ddd0fca9416d8a2866263928a53b9d5ed08dfca064d64504a0aaf9800c709e",
       "dependencies": [
@@ -108,21 +116,35 @@
         "npm:@prefresh/vite"
       ]
     },
+    "@olli/kvdex@0.36.1": {
+      "integrity": "36c47856ab436048bc39a7a104fdd66e64fdef6883fe8a6b0c608ac6600a05ec",
+      "dependencies": [
+        "jsr:@std/bytes@0.220",
+        "jsr:@std/collections@0.220",
+        "jsr:@std/ulid@0.220"
+      ]
+    },
     "@olli/kvdex@3.4.0": {
       "integrity": "007b1dca50a20f7d036d186fb24875ce2eb19d9c0b3a32878edc1d0e8181aa9a",
       "dependencies": [
         "jsr:@std/bytes@^1.0.4",
         "jsr:@std/cli",
-        "jsr:@std/collections",
-        "jsr:@std/ulid",
+        "jsr:@std/collections@^1.0.9",
+        "jsr:@std/ulid@1",
         "npm:zod@^3.24.0"
       ]
+    },
+    "@std/bytes@0.220.1": {
+      "integrity": "e522cdc7c152cfc8a09bd618618cbc710dcf57003ab6fab3a6c37ff4c88aa3db"
     },
     "@std/bytes@1.0.6": {
       "integrity": "f6ac6adbd8ccd99314045f5703e23af0a68d7f7e58364b47d2c7f408aeb5820a"
     },
     "@std/cli@1.0.12": {
       "integrity": "e5cfb7814d189da174ecd7a34fbbd63f3513e24a1b307feb2fcd5da47a070d90"
+    },
+    "@std/collections@0.220.1": {
+      "integrity": "5820a8d7f69ef93af6807249dfa4be5b97ebf8654c587826612744cf7ae57ef2"
     },
     "@std/collections@1.1.3": {
       "integrity": "bf8b0818886df6a32b64c7d3b037a425111f28278d69fd0995aeb62777c986b0"
@@ -171,6 +193,9 @@
     },
     "@std/semver@1.0.5": {
       "integrity": "529f79e83705714c105ad0ba55bec0f9da0f24d2f726b6cc1c15e505cc2c0624"
+    },
+    "@std/ulid@0.220.1": {
+      "integrity": "e61b7cc36b8aab1a90cae0958b169a79bb71ded3cda039ba722fdc09191a5537"
     },
     "@std/ulid@1.0.0": {
       "integrity": "d41c3d27a907714413649fee864b7cde8d42ee68437d22b79d5de4f81d808780"
@@ -1436,7 +1461,20 @@
     "https://deno.land/x/zipjs@v2.7.69/lib/core/zip-reader.js": "21b0343a6dfd076b772100830a9b53093b54a3002322d66b7aaf8935a58b5fbe",
     "https://deno.land/x/zipjs@v2.7.69/lib/core/zip-writer.js": "ea70d28eb6e2432111dc5adf002b0fcd7803c5bb5ecbc40a6c81cd92e41d55f1",
     "https://deno.land/x/zipjs@v2.7.69/lib/z-worker-inline.js": "5c2c0f4dd9dcd7dc66e8b1898ba3de6c1055610252db3bab4b21b0792f52f0af",
-    "https://deno.land/x/zipjs@v2.7.69/lib/zip-fs.js": "aeb8912a21cbef970f62001451f3488740640b7c7d7ae1b5fd03f2dc01f7a0ef"
+    "https://deno.land/x/zipjs@v2.7.69/lib/zip-fs.js": "aeb8912a21cbef970f62001451f3488740640b7c7d7ae1b5fd03f2dc01f7a0ef",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/mod.ts": "d8a6ba58573c4f19e0e361b51a18348dd897789f5e7a5c1cd79713a93beb0b3d",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/atomic_builder.ts": "1e8a5e4bfb35e663581bb5e6b13c40f5c38fda2ccc5e317607634de58e650966",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/atomic_pool.ts": "5edd6e901bb347b2925ce180ae32867a1fd2039bc7382d93b7303cb4146486d7",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/atomic_wrapper.ts": "d2caeefc7b631a777a2c208ccc216abbda2b3d3636872ea8b11f404f01981082",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/collection.ts": "44913c5600c81c2d8efd1b7385dec440e5300bb8666abb1f0406be63903acb51",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/constants.ts": "6213e7ea961fd8274cf84c399db64657909ac85aff00dac3910a5ed36b7a3cfe",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/deps.ts": "d7d478f582d537fba4c5fb7690c90c26f6939e6d0eb929b0ff7ec44584dc1e54",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/document.ts": "344c0fede803614fc6fe37d2b71aa00a4a29b348a33ef791400610241a22ed96",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/errors.ts": "19ef64f42566041af2599071f4d32e193bfa59ecf7a2696532877ab0c12f96c3",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/kvdex.ts": "b0bb8a17770a187b09679703dcbde6bcca9e8f906c2515f28e89f59988c26394",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/model.ts": "6112ce1a911a3bc2fb8e2422e8a5e8c27804b059e22dbbdc86240ac1b295a311",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/types.ts": "dd5c92b7a7879908e5634c39fb751bd0597ac5fd593ae7f17f18ae5200d31112",
+    "https://raw.githubusercontent.com/oliver-oloughlin/kvdex/refs/tags/0.36.1/src/utils.ts": "c50c34deba6f62a905ab8bfbb056c6b262199ef2f1ffa3e9ad984cf2ff87338a"
   },
   "workspace": {
     "dependencies": [

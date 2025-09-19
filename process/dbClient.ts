@@ -1,4 +1,4 @@
-import { kvdex } from "kvdex";
+import { kvdex  } from "../deps/kvdex.ts";
 import { WipMetadata } from "./dbCollection/wipMetadata.ts";
 
 export namespace DbClient {
@@ -18,11 +18,8 @@ export namespace DbClient {
   };
 
   const _createDbClient = (kv: Deno.Kv) => {
-    const kvClient = kvdex({
-      kv,
-      schema: {
-        WipMetadata,
-      },
+    const kvClient = kvdex(kv, {
+      WipMetadata,
     });
 
     return kvClient;
