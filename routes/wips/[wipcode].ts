@@ -35,15 +35,31 @@ const getMetadataForWipcode = async (
   return metadata;
 };
 
+
+
 export const handler = define.handlers({
   HEAD: async ({ params }) => {
     const wipcode = getWipcodeFromContext(params.wipcode);
     console.log(`HEAD ${wipcode}`);
     const dbClient = await DbClient.getDbClient();
     const metadata = await getMetadataForWipcode(dbClient, wipcode);
+
+    if (!metadata || metadata.removed) {
+      console.log(`HEAD ${wipcode} - not found`)
+      return new Response("Not Found", {
+        status: 404,
+        headers: {
+          "Content-Type": "text/plain;charset=UTF-8"
+        }
+      })
+    }
+
+    console.log(`HEAD ${wipcode} - found`)
     return new Response("OK", {
+      status: 200,
       headers: {
         "Content-Length": "" + metadata.size,
+        "Content-Type": "application/zip",
       },
     });
   },
