@@ -2,7 +2,7 @@ import { z } from "zod";
 import { collection } from "kvdex";
 
 export const WipMetadataSchema = z.object({
-  version: z.number(),
+  version: z.number().optional(), // todo remove optional
   hash: z.string(),
   wipcode: z.string(),
 
@@ -14,8 +14,8 @@ export const WipMetadataSchema = z.object({
   verify_success: z.boolean(),
   verify_errorArray: z.array(z.string()).nullable(),
 
-  created_at: z.date(),
-  outdated_at: z.date(),
+  created_at: z.date().optional(), // todo remove optional
+  outdated_at: z.date().optional(), // todo remove optional
 });
 
 export const WipMetadata = collection(WipMetadataSchema, {
