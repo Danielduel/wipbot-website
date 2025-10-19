@@ -10,6 +10,8 @@ const respond = (url: string, hash: string) => ({
 
 export type ResponseObject = ReturnType<typeof respond>;
 
+const HOUR_MS = 60 * 60 * 1000;
+
 export const handler = define.handlers({
   async POST (ctx) {
     const size = (await ctx.req.json()).size as number;
@@ -18,7 +20,11 @@ export const handler = define.handlers({
     const hash = await UploadWip.generateAvailableHash();
     const wipcode = await UploadWip.generateAvailableName();
 
+    const created_at = new Date();
+    const outdated_at = new Date(Date.now() + 23 * HOUR_MS);
+
     await dbClient.WipMetadata.add({
+      version: 2,
       hash,
       wipcode,
       size,
@@ -27,6 +33,8 @@ export const handler = define.handlers({
       verify_errorArray: null,
       verify_finished: false,
       verify_success: false,
+      created_at,
+      outdated_at,
     });
 
     const url = await s3Client.getPresignedUrl("PUT", hash, {
