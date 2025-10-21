@@ -1,41 +1,25 @@
-import { DbClient } from "../../../process/dbClient.ts";
 import { S3Client } from "../../../process/s3Client.ts";
-import { UploadWip } from "../../../process/uploadWip.ts";
+import { WipMetadata } from "../../../process/WipMetadata.ts";
 import { define } from "../../../utils.ts";
 
-const respond = (url: string, hash: string) => ({
+const respond = (url: string, hash: string, secret: string | undefined) => ({
   url,
   hash,
+  secret
 });
 
 export type ResponseObject = ReturnType<typeof respond>;
-
-const HOUR_MS = 60 * 60 * 1000;
 
 export const handler = define.handlers({
   async POST (ctx) {
     const size = (await ctx.req.json()).size as number;
     const s3Client = S3Client.getS3Client();
-    const dbClient = await DbClient.getDbClient();
-    const hash = await UploadWip.generateAvailableHash();
-    const wipcode = await UploadWip.generateAvailableName();
 
-    const created_at = new Date();
-    const outdated_at = new Date(Date.now() + 23 * HOUR_MS);
-
-    await dbClient.WipMetadata.add({
-      version: 2,
-      hash,
-      wipcode,
-      size,
-      removed: false,
-      verify_started: false,
-      verify_errorArray: null,
-      verify_finished: false,
-      verify_success: false,
-      created_at,
-      outdated_at,
-    });
+    const item = await WipMetadata.create(size);
+    const {
+      secret,
+      hash
+    } = item;
 
     const url = await s3Client.getPresignedUrl("PUT", hash, {
       bucketName: S3Client.BUCKET.WIP_BLOB,
@@ -45,6 +29,6 @@ export const handler = define.handlers({
       },
     });
 
-    return new Response(JSON.stringify(respond(url, hash)));
+    return new Response(JSON.stringify(respond(url, hash, secret)));
   },
 });

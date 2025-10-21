@@ -6,6 +6,10 @@ export const WipMetadataSchema = z.object({
   hash: z.string(),
   wipcode: z.string(),
 
+  secret: z.string().optional(), // todo remove optional (version 3)
+  private: z.boolean().optional(), // todo remove optional (version 3)
+  private_shared_with: z.array(z.string()), // todo remove optional (version 3)
+
   size: z.number(),
   removed: z.boolean(),
 
@@ -17,6 +21,7 @@ export const WipMetadataSchema = z.object({
   created_at: z.date().optional(), // todo remove optional
   outdated_at: z.date().optional(), // todo remove optional
 });
+export type WipMetadataSchemaT = z.infer<typeof WipMetadataSchema>;
 
 export const WipMetadata = collection(WipMetadataSchema, {
   history: true,

@@ -1,5 +1,5 @@
 import { DbClient } from "../../../process/dbClient.ts";
-import { WipMetadataSchema } from "../../../process/dbCollection/wipMetadata.ts";
+import { WipMetadataSchemaT } from "../../../process/dbCollection/wipMetadata.ts";
 import { S3Client } from "../../../process/s3Client.ts";
 import { UploadWip } from "../../../process/uploadWip.ts";
 import { define } from "../../../utils.ts";
@@ -47,7 +47,7 @@ export const _handler = async (
   const dbClient = await DbClient.getDbClient();
   const _metadata = await dbClient.WipMetadata.findByPrimaryIndex("hash", hash);
   if (!_metadata || !_metadata.value) throw 400;
-  const metadata = _metadata.value as typeof WipMetadataSchema.shape;
+  const metadata = _metadata.value as WipMetadataSchemaT;
 
   const s3Client = S3Client.getS3Client();
   const blobToVerify = await waitForWipBlob(s3Client, hash);
