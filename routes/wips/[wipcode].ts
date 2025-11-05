@@ -35,8 +35,6 @@ const getMetadataForWipcode = async (
   return metadata;
 };
 
-
-
 export const handler = define.handlers({
   HEAD: async ({ params }) => {
     const wipcode = getWipcodeFromContext(params.wipcode);
