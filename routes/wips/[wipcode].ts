@@ -32,17 +32,44 @@ const getMetadataForWipcode = async (
 
   if (!metadata.verify_success) throw 400;
 
-  return metadata;
+  return [metadata, _metadata] as const;
 };
+type MetadataT = Awaited<ReturnType<typeof getMetadataForWipcode>>[0];
+
+const shouldBeAvailable = async (metadata: MetadataT, handleRemove: () => Promise<void>): Promise<boolean> => {
+  if (!metadata) return false;
+  if (metadata.removed) return false;
+  if (metadata.outdated_at.getTime() < Date.now()) {
+    await handleRemove();
+    return false;
+  }
+
+  const s3Client = S3Client.getS3Client();
+  const exists = await s3Client.exists(metadata.hash, {
+    bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
+  });
+  if (!exists) {
+    await handleRemove();
+    return false;
+  }
+
+  return true;
+}
+
 
 export const handler = define.handlers({
   HEAD: async ({ params }) => {
     const wipcode = getWipcodeFromContext(params.wipcode);
     console.log(`HEAD ${wipcode}`);
     const dbClient = await DbClient.getDbClient();
-    const metadata = await getMetadataForWipcode(dbClient, wipcode);
+    const [metadata, metadataKVEntry] = await getMetadataForWipcode(dbClient, wipcode);
+    const available = await shouldBeAvailable(metadata, async () => {
+      await dbClient.WipMetadata.update(metadataKVEntry.id, {
+        removed: true,
+      });
+    })
 
-    if (!metadata || metadata.removed) {
+    if (!available) {
       console.log(`HEAD ${wipcode} - not found`)
       return new Response("Not Found", {
         status: 404,
@@ -65,12 +92,15 @@ export const handler = define.handlers({
     const wipcode = getWipcodeFromContext(params.wipcode);
     console.log(`GET ${wipcode}`);
     const dbClient = await DbClient.getDbClient();
-    const metadata = await getMetadataForWipcode(dbClient, wipcode);
     const s3Client = S3Client.getS3Client();
-    const exists = await s3Client.exists(metadata.hash, {
-      bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
-    });
-    if (!exists) throw 404;
+    const [metadata, metadataKVEntry] = await getMetadataForWipcode(dbClient, wipcode);
+    const available = await shouldBeAvailable(metadata, async () => {
+      await dbClient.WipMetadata.update(metadataKVEntry.id, {
+        removed: true,
+      });
+    })
+
+    if (!available) throw 404;
 
     const data = await s3Client.presignedGetObject(metadata.hash, {
       bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
