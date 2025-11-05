@@ -1,7 +1,7 @@
 import { DbClient } from "./process/dbClient.ts";
 import { shouldBeAvailable } from "./routes/wips/[wipcode].ts";
 
-Deno.cron("Weekly cleanup", "0 0 * * * 0", async () => {
+Deno.cron("Weekly cleanup", "0 0 * * 1", async () => {
   const dbClient = await DbClient.getDbClient();
   
   await dbClient.WipMetadata.forEach(async (metadataKV) => {
