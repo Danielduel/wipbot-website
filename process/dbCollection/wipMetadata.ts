@@ -2,13 +2,13 @@ import { z } from "zod";
 import { collection } from "kvdex";
 
 export const WipMetadataSchema = z.object({
-  version: z.number(),
+  version: z.number().optional(),
   hash: z.string(),
   wipcode: z.string(),
 
-  secret: z.string(),
-  private: z.boolean(),
-  private_shared_with: z.array(z.string()),
+  secret: z.string().default("none"),
+  private: z.boolean().default(false),
+  private_shared_with: z.array(z.string()).default([]),
 
   size: z.number(),
   removed: z.boolean(),
@@ -18,10 +18,9 @@ export const WipMetadataSchema = z.object({
   verify_success: z.boolean(),
   verify_errorArray: z.array(z.string()).nullable(),
 
-  created_at: z.date(),
-  outdated_at: z.date(),
+  created_at: z.date().default(new Date(0)),
+  outdated_at: z.date().default(new Date(0)),
 });
-export type WipMetadataSchemaT = z.infer<typeof WipMetadataSchema>;
 
 export const WipMetadata = collection(WipMetadataSchema, {
   history: true,

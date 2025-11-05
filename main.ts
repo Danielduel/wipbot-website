@@ -1,4 +1,7 @@
 /// <reference lib="deno.unstable" />
+
+import "./cronjobs.ts";
+
 import { App, staticFiles, trailingSlashes } from "fresh";
 
 export const app = new App()

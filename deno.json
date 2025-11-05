@@ -5,6 +5,7 @@
     "startE": "deno task --env-file start",
     "start": "vite",
     "dev": "vite dev",
+    "tools:manualCleanup": "deno run --env -A ./manual-cleanup.ts", 
     "tools:cleanupDb": "deno run --env -A ./tools/cleanupDb.ts",
     "build": "vite build",
     "preview": "deno serve -A _fresh/server.js",

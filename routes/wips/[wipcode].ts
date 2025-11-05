@@ -36,7 +36,7 @@ const getMetadataForWipcode = async (
 };
 type MetadataT = Awaited<ReturnType<typeof getMetadataForWipcode>>[0];
 
-const shouldBeAvailable = async (metadata: MetadataT, handleRemove: () => Promise<void>): Promise<boolean> => {
+export const shouldBeAvailable = async (metadata: MetadataT, handleRemove: () => Promise<void>): Promise<boolean> => {
   if (!metadata) return false;
   if (metadata.removed) return false;
   if (metadata.outdated_at.getTime() < Date.now()) {
@@ -55,7 +55,6 @@ const shouldBeAvailable = async (metadata: MetadataT, handleRemove: () => Promis
 
   return true;
 }
-
 
 export const handler = define.handlers({
   HEAD: async ({ params }) => {
