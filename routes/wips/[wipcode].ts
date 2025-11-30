@@ -4,7 +4,7 @@ import { define } from "../../utils.ts";
 
 const alternativeDomains: Record<string, (prefix: string, wipcode: string) => string> = {
   "8": (prefix: string, wipcode: string) => `https://wip.hawk.quest/upload/${prefix}${wipcode}.zip`,
-  "9": (prefix: string, wipcode: string) => `https://wip.hawk.quest/upload/${prefix}${wipcode}.zip`
+  "9": (prefix: string, wipcode: string) => `https://thnght.pro/upload/${prefix}${wipcode}.zip`
 };
 
 const getRedirection = (prefix: string, wipcode: string) => {
