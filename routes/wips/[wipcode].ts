@@ -2,7 +2,31 @@ import { DbClient } from "../../process/dbClient.ts";
 import { S3Client } from "../../process/s3Client.ts";
 import { define } from "../../utils.ts";
 
-const getWipcodeFromContext = (wipcodeParam: string) => {
+const alternativeDomains: Record<string, (prefix: string, wipcode: string) => string> = {
+  "8": (prefix: string, wipcode: string) => `https://wip.hawk.quest/upload/${prefix}${wipcode}.zip`,
+  "9": (prefix: string, wipcode: string) => `https://wip.hawk.quest/upload/${prefix}${wipcode}.zip`
+};
+
+const getRedirection = (prefix: string, wipcode: string) => {
+  if (prefix in alternativeDomains) {
+    const createRedirection = alternativeDomains[prefix];
+    if (createRedirection) {
+      const url = createRedirection(prefix, wipcode);
+      return url;
+    }
+  }
+  return null;
+}
+
+const handlePossibleRedirect = (prefix: string, wipcode: string) => {
+  const redirectUrl = getRedirection(prefix, wipcode);
+  if (redirectUrl) {
+    return Response.redirect(redirectUrl, 307);
+  }
+  return null;
+}
+
+const getPrefixAndWipcodeFromContext = (wipcodeParam: string) => {
   const __wipcode = wipcodeParam;
 
   if (__wipcode === "***") {
@@ -13,9 +37,11 @@ const getWipcodeFromContext = (wipcodeParam: string) => {
   const _wipcode = __wipcode.endsWith(".zip")
     ? __wipcode.split(".zip")[0]
     : __wipcode;
+  
+  const prefix = _wipcode[0];
   const wipcode = _wipcode.substring(1);
 
-  return wipcode;
+  return [prefix, wipcode];
 };
 
 const getMetadataForWipcode = async (
@@ -58,8 +84,14 @@ export const shouldBeAvailable = async (metadata: MetadataT, handleRemove: () =>
 
 export const handler = define.handlers({
   HEAD: async ({ params }) => {
-    const wipcode = getWipcodeFromContext(params.wipcode);
-    console.log(`HEAD ${wipcode}`);
+    const [prefix, wipcode] = getPrefixAndWipcodeFromContext(params.wipcode);
+    console.log(`HEAD ${prefix} ${wipcode}`);
+    const possibleRedirect = handlePossibleRedirect(prefix, wipcode);
+    if (possibleRedirect) {
+      console.log(`HEAD ${prefix} ${wipcode} -> redirect ${possibleRedirect.url}`)
+      return possibleRedirect;
+    }
+
     const dbClient = await DbClient.getDbClient();
     const [metadata, metadataKVEntry] = await getMetadataForWipcode(dbClient, wipcode);
     const available = await shouldBeAvailable(metadata, async () => {
@@ -88,8 +120,15 @@ export const handler = define.handlers({
     });
   },
   GET: async ({ params }): Promise<Response> => {
-    const wipcode = getWipcodeFromContext(params.wipcode);
-    console.log(`GET ${wipcode}`);
+    const [prefix, wipcode] = getPrefixAndWipcodeFromContext(params.wipcode);
+    console.log(`GET ${prefix} ${wipcode}`);
+
+    const possibleRedirect = handlePossibleRedirect(prefix, wipcode);
+    if (possibleRedirect) {
+      console.log(`GET ${prefix} ${wipcode} -> redirect ${possibleRedirect.url}`)
+      return possibleRedirect;
+    }
+
     const dbClient = await DbClient.getDbClient();
     const s3Client = S3Client.getS3Client();
     const [metadata, metadataKVEntry] = await getMetadataForWipcode(dbClient, wipcode);
