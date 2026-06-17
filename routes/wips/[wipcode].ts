@@ -2,6 +2,8 @@ import { DbClient } from "../../process/dbClient.ts";
 import { S3Client } from "../../process/s3Client.ts";
 import { define } from "../../utils.ts";
 
+// test push
+
 const alternativeDomains: Record<string, (prefix: string, wipcode: string) => string> = {
   "8": (prefix: string, wipcode: string) => `https://wip.hawk.quest/upload/${prefix}${wipcode}.zip`,
   "9": (prefix: string, wipcode: string) => `https://thnght.pro/upload/${prefix}${wipcode}.zip`
