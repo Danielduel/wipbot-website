@@ -57,7 +57,7 @@ export const _handler = async (
   if (!verification) throw 400;
   if (!verification.blob) throw 400;
 
-  await s3Client.putObject(hash, await verification.blob.bytes(), {
+  await s3Client.putObject(hash, verification.blob.stream(), {
     bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
     metadata: { Expires: new Date(Date.now() + 5 * 1000).toString() },
   });
