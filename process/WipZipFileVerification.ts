@@ -20,8 +20,8 @@ export class WipZipFileVerification extends WipZipFile {
 
   status: WipZipFileVerificationMetadata = new WipZipFileVerificationMetadata();
 
-  public verify = () => {
-    const infoDatObject = this.readInfoDatObject();
+  public verify = async () => {
+    const infoDatObject = await this.readInfoDatObject();
 
     if (!infoDatObject) {
       return true;
@@ -99,7 +99,7 @@ export class WipZipFileVerification extends WipZipFile {
     return false;
   };
 
-  private readInfoDatObject = (): object | null => {
+  private readInfoDatObject = async (): Promise<object | null> => {
     if (!this.fileEntries.hasIgnoreCase("Info.dat")) {
       this.status.details.infoDat
         .pushError("Missing Info.dat in verification entries")
@@ -117,7 +117,7 @@ export class WipZipFileVerification extends WipZipFile {
       return null;
     }
 
-    const infoDatObjectInner = infoDatObject[1];
+    const infoDatObjectInner = (await infoDatObject)[1];
     if (!(typeof infoDatObjectInner === "object")) {
       this.status.details.infoDat
         .pushError("Cannot read Info.dat")

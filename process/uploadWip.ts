@@ -28,7 +28,7 @@ export namespace UploadWip {
       const wipZipFileVerification = wipZipFileVerificationM.unwrap();
 
       log("calling verify")
-      const hasFailed = wipZipFileVerification.verify();
+      const hasFailed = await wipZipFileVerification.verify();
 
       log("checking verify")
       if (hasFailed) {
