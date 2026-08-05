@@ -32,6 +32,7 @@
   "imports": {
     "@/": "./",
     "@bradenmacdonald/s3-lite-client": "jsr:@bradenmacdonald/s3-lite-client@^0.9.6",
+    "@mesilicon7/simple-r2-utils": "jsr:@mesilicon7/simple-r2-utils@^2.0.2",
     "fresh": "jsr:@fresh/core@^2.1.0",
     "preact": "npm:preact@^10.27.2",
     "@preact/signals": "npm:@preact/signals@^2.3.1",
