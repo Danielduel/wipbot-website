@@ -130,17 +130,22 @@ export class WipZipFile {
     return this;
   };
 
-  public reconstruct = async () => {
+  public reconstruct = async (_log: (str: string) => void) => {
+    const log = (str: string) => _log(`reconstruct: ${str}`);
+
+    log("warming up");
     const zipFileWriter = new BlobWriter();
     const zipWriter = new ZipWriter(zipFileWriter);
     const addedFiles: string[] = [];
 
+    log("checking reconstruction data");
     await Promise.all(
       this.reconstructionEntries
         .map(({ filename, isOptional }) => {
           const entry = this.fileEntries.getEntryIgnoreCase(filename);
           if (!entry && isOptional) return Promise.resolve();
           if (!entry && !isOptional) {
+            log("error in nonoptional reconstruction data entry");
             return Promise.resolve(
               new Error(
                 `Necessary file ${filename} is missing in reconstruction data`,
@@ -155,11 +160,15 @@ export class WipZipFile {
           if (addedFiles.includes(finalFileName)) return Promise.resolve();
 
           addedFiles.push(finalFileName);
+          log(`adding ${finalFileName}`);
           return zipWriter.add(finalFileName, item.data);
         }),
     );
+
+    log("closing zip writer")
     await zipWriter.close();
 
+    log("calling getData");
     return await zipFileWriter.getData();
   };
 

@@ -31,7 +31,7 @@ export namespace UploadWip {
       log("calling verify")
       const hasFailed = wipZipFileVerification.verify();
 
-      log("checking verify failure")
+      log("checking verify")
       if (hasFailed) {
         log("verify failure")
         console.log(wipZipFileVerification.status);
@@ -39,7 +39,7 @@ export namespace UploadWip {
       }
 
       log("calling reconstruct")
-      const finalBlob = await wipZipFileVerification.reconstruct();
+      const finalBlob = await wipZipFileVerification.reconstruct(log);
 
       log("checking final blob")
       if (!finalBlob) {
