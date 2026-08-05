@@ -38,7 +38,10 @@ const waitForWipBlob = async (s3Client: S3Client.ClientT, hash: string) => {
   return blob;
 };
 
-const getVerificationStream = async (s3Client: S3Client.ClientT, hash: string, log: (str: string) => void) => {
+const getVerificationStream = async (hash: string, log: (str: string) => void) => {
+  log("s3 init")
+  const s3Client = S3Client.getS3Client();
+
   log("s3 get blob")
   const blobToVerify = await waitForWipBlob(s3Client, hash);
   log("s3 got blob")
@@ -48,13 +51,15 @@ const getVerificationStream = async (s3Client: S3Client.ClientT, hash: string, l
   const verification = await UploadWip.verifyWip(await blobToVerify.blob(), log);
   if (!verification) throw 400;
   if (!verification.blob) throw 400;
-  return verification.blob.stream();
+  return {
+    verificationStream: verification.blob.stream(),
+    verificationStatus: verification.status
+  };
 }
 
 const toMB = (num: number) => (~~((num / (1024 * 1024)) * 100) / 100) + "MB";
 const memoryLog = () => {
   const memory = Deno.memoryUsage()
-  memory.rss
   return `[${toMB(memory.rss)}|${toMB(memory.external)}|${toMB(memory.heapUsed)}|${toMB(memory.heapTotal)}]`
 }
 
@@ -74,10 +79,11 @@ export const _handler = async (
   const metadata = _metadata.value as WipMetadataSchemaT;
   log(`metadata ${JSON.stringify(metadata, undefined, 2)}`)
 
-  log("s3 init")
+  log("verification")
+  const { verificationStream, verificationStatus } = await getVerificationStream(hash, log);
+  
+  log("s3 init for put")
   const s3Client = S3Client.getS3Client();
-  const verificationStream = await getVerificationStream(s3Client, hash, log);
-
   log("s3 put")
   await s3Client.putObject(hash, verificationStream, {
     bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
@@ -99,7 +105,7 @@ export const _handler = async (
   log("sending response")
   return {
     wipcode: metadata.wipcode,
-    status: verification.status,
+    status: verificationStatus,
   } as const;
 };
 
