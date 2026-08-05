@@ -62,6 +62,7 @@ const getVerificationStream = async (
   if (!verification) throw 400;
   if (!verification.blob) throw 400;
   return {
+    verificationStreamLength: verification.blob.size,
     verificationStream: verification.blob.stream(),
     verificationStatus: verification.status,
   };
@@ -93,7 +94,7 @@ export const _handler = async (
   log(`metadata ${JSON.stringify(metadata, undefined, 2)}`);
 
   log("verification");
-  const { verificationStream, verificationStatus } =
+  const { verificationStream, verificationStatus, verificationStreamLength } =
     await getVerificationStream(hash, log);
 
   log("s3 init for put");
@@ -121,7 +122,8 @@ export const _handler = async (
     method: 'PUT',
     body: verificationStream,
     headers: {
-      'Content-Type': 'application/zip'
+      'Content-Type': 'application/zip',
+      "Length": verificationStreamLength 
     }
   });
   console.log(response);
