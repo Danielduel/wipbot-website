@@ -133,6 +133,41 @@ export class WipZipFile {
     return this;
   };
 
+  public addFilenameToZip = async (
+    { filename, isOptional }: ReconstructionEntry,
+    addedFiles: string[],
+    zipWriter: ZipWriter<Blob>,
+    log: (str: string) => void
+  ) => {
+    const entry = this.fileEntries.getEntryIgnoreCase(filename);
+    if (!entry && isOptional) return Promise.resolve();
+    if (!entry && !isOptional) {
+      log("error in nonoptional reconstruction data entry");
+      return Promise.resolve(
+        new Error(
+          `Necessary file ${filename} is missing in reconstruction data`,
+        ),
+      );
+    }
+    if (!entry) {
+      return Promise.resolve(new Error("Empty entry error, fallback")); // this shouldn't happen
+    }
+
+    const [finalFileName, item] = entry;
+    if (addedFiles.includes(finalFileName)) return Promise.resolve();
+
+    addedFiles.push(finalFileName);
+    log(
+      `adding ${finalFileName} - ${item.data.uncompressedSize} (compressed: ${item.data.compressedSize})`,
+    );
+    const buffer = new Buffer();
+    if (!item.data.getData) return;
+    log(`reading ${finalFileName}`);
+    await item.data.getData(buffer.writable);
+    log(`zipping ${finalFileName}`);
+    return zipWriter.add(finalFileName, buffer.readable);
+  };
+
   public reconstruct = async (_log: (str: string) => void) => {
     const log = (str: string) => _log(`reconstruct: ${str}`);
 
@@ -142,34 +177,14 @@ export class WipZipFile {
     const addedFiles: string[] = [];
 
     log("checking reconstruction data");
-    await Promise.all(
-      this.reconstructionEntries
-        .map(async ({ filename, isOptional }) => {
-          const entry = this.fileEntries.getEntryIgnoreCase(filename);
-          if (!entry && isOptional) return Promise.resolve();
-          if (!entry && !isOptional) {
-            log("error in nonoptional reconstruction data entry");
-            return Promise.resolve(
-              new Error(
-                `Necessary file ${filename} is missing in reconstruction data`,
-              ),
-            );
-          }
-          if (!entry) {
-            return Promise.resolve(new Error("Empty entry error, fallback")); // this shouldn't happen
-          }
-
-          const [finalFileName, item] = entry;
-          if (addedFiles.includes(finalFileName)) return Promise.resolve();
-
-          addedFiles.push(finalFileName);
-          log(`adding ${finalFileName} - ${item.data.uncompressedSize} (compressed: ${item.data.compressedSize})`);
-          const buffer = new Buffer();
-          if (!item.data.getData) return;
-          await item.data.getData(buffer.writable);
-          return zipWriter.add(finalFileName, buffer.readable);
-        }),
-    );
+    for await (const entry of this.reconstructionEntries) {
+      await this.addFilenameToZip(entry, addedFiles, zipWriter, log);
+    }
+    // await Promise.all(
+    //   this.reconstructionEntries
+    //     .map(async ({ filename, isOptional }) => {
+    //     }),
+    // );
 
     log("closing zip writer");
     await zipWriter.close();
