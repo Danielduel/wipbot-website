@@ -11,7 +11,8 @@ import { LooseCaseMap } from "./LooseCaseMap.ts";
 import type { FileEntry, ReconstructionEntry } from "./types.ts";
 
 export class WipZipFile {
-  private file: File;
+  // private file: File;
+  private blob: Blob;
   public fileEntries = new LooseCaseMap<string, FileEntry>();
   private reconstructionEntries: ReconstructionEntry[] = [];
 
@@ -27,26 +28,28 @@ export class WipZipFile {
   }
 
   constructor(wipFileBlob: Blob) {
-    this.file = new File([wipFileBlob], "none");
+    // this.file = new File([wipFileBlob], "none");
+    this.blob = wipFileBlob;
   }
 
   protected async initialize(): Promise<Error | undefined> {
-    if (!(this.file instanceof File)) {
-      return new Error("Expected blob is not a file");
+    if (!(this.blob instanceof Blob)) {
+      return new Error("Expected blob is not a blob");
     }
 
-    if (this.file.size > compressedTotalSizeLimit) {
+    if (this.blob.size > compressedTotalSizeLimit) {
       return new Error("Compressed size is over the limit");
     }
 
-    const fileStream = this.file.stream();
-    const fileZipReader = new ZipReader(fileStream);
+    // const fileStream = this.file.stream();
+    const blobStream = this.blob.stream();
+    const fileZipReader = new ZipReader(blobStream);
     const entries = fileZipReader.getEntriesGenerator();
     let totalUncompressedSize = 0;
 
     const returns = async <R>(returnedValue: R): Promise<R> => {
-      if (!fileStream.locked) {
-        await fileStream.cancel();
+      if (!blobStream.locked) {
+        await blobStream.cancel();
       }
       await fileZipReader.close();
       return returnedValue;
@@ -111,9 +114,6 @@ export class WipZipFile {
 
     const ret = await returns(undefined);
 
-    delete fileStream;
-    delete fileZipReader;
-
     return ret;
   }
 
@@ -166,10 +166,7 @@ export class WipZipFile {
 
           addedFiles.push(finalFileName);
           log(`adding ${finalFileName}`);
-          const ret = await zipWriter.add(finalFileName, item.data);
-          delete item.data;
-          delete item;
-          return ret;
+          return zipWriter.add(finalFileName, item.data);
         }),
     );
 
