@@ -125,6 +125,7 @@ export const _handler = async (
     headers: {
       "Content-Type": "application/zip",
       "Content-Length": verificationStreamLength + "",
+      "Length": verificationStreamLength + "",
     },
   }
   console.log(opts);
