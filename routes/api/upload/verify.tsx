@@ -64,7 +64,7 @@ const getVerificationStream = async (
   const bytes = await verification.blob.bytes();
   return {
     verificationStreamLength: bytes.length,
-    verificationStream: bytes,
+    verificationStream: verification.blob.stream(),
     verificationStatus: verification.status,
   };
 };
