@@ -8,11 +8,10 @@ export namespace UploadWip {
 
   export const _getBlob = async (
     blobToVerify: Blob,
+    log: (str: string) => void
   ): Promise<Verification | null> => {
     try {
-      const traceId = ~~(Math.random() * 255);
-      const log = (str: string) => console.log(`[trace: ${traceId}] Verify blob: ${str}`)
-      log("start")
+      log("getBlob")
       const wipZipFileVerificationM = await WipZipFileVerification.fromBlobM(
         blobToVerify,
       );
@@ -57,10 +56,12 @@ export namespace UploadWip {
 
   export const verifyWip = async (
     blobToVerify: Blob,
+    log: (str: string) => void
   ): Promise<Verification | null> => {
-    const verification = await _getBlob(blobToVerify);
+    const verification = await _getBlob(blobToVerify, log);
     if (!verification) return null;
     if (!verification.blob) return { blob: null, status: verification.status };
+    log("get blob - finish")
     return verification;
   };
 }

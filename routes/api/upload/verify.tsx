@@ -41,27 +41,38 @@ const waitForWipBlob = async (s3Client: S3Client.ClientT, hash: string) => {
 export const _handler = async (
   req: Request,
 ) => {
+  const traceId = ~~(Math.random() * 255);
+  const log = (str: string) => console.log(`[trace: ${traceId}] Verify blob: ${str}`)
+  
   const hash = (await req.json()).hash;
+  log(`hash ${hash}`)
   if (!hash) throw 400;
 
   const dbClient = await DbClient.getDbClient();
   const _metadata = await dbClient.WipMetadata.findByPrimaryIndex("hash", hash);
   if (!_metadata || !_metadata.value) throw 400;
   const metadata = _metadata.value as WipMetadataSchemaT;
+  log(`metadata ${JSON.stringify(metadata, undefined, 2)}`)
 
+  log("s3 init")
   const s3Client = S3Client.getS3Client();
+  log("s3 get blob")
   const blobToVerify = await waitForWipBlob(s3Client, hash);
+  log("s3 got blob")
   if (!blobToVerify) throw 400;
 
-  const verification = await UploadWip.verifyWip(await blobToVerify.blob());
+  log("verification start");
+  const verification = await UploadWip.verifyWip(await blobToVerify.blob(), log);
   if (!verification) throw 400;
   if (!verification.blob) throw 400;
 
+  log("s3 put")
   await s3Client.putObject(hash, verification.blob.stream(), {
     bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
     metadata: { Expires: new Date(Date.now() + 5 * 1000).toString() },
   });
 
+  log("db update")
   await dbClient.WipMetadata.updateByPrimaryIndex(
     "hash",
     hash,
@@ -73,6 +84,7 @@ export const _handler = async (
     },
   );
 
+  log("sending response")
   return {
     wipcode: metadata.wipcode,
     status: verification.status,
