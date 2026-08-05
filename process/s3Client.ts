@@ -1,4 +1,4 @@
-import { S3Client as _S3Client } from "s3_lite_client";
+import { S3Client as _S3Client } from "@bradenmacdonald/s3-lite-client";
 
 export namespace S3Client {
   let _current: _S3Client | null = null;
