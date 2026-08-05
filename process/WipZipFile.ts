@@ -59,7 +59,6 @@ export class WipZipFile {
       if (zipFileContent.directory) {
         this.directories.push(zipFileContent.filename);
       } else {
-        const buffer = new Buffer();
         totalUncompressedSize += zipFileContent.uncompressedSize;
         if (totalUncompressedSize > uncompressedTotalSizeLimit) {
           return await returns(
@@ -71,10 +70,9 @@ export class WipZipFile {
             new Error("Uncompressed size for an item is over the limit"),
           );
         }
-        await zipFileContent.getData(buffer.writable);
         this.fileEntries.set(zipFileContent.filename, {
           name: zipFileContent.filename,
-          data: buffer,
+          data: zipFileContent,
         });
       }
     }
@@ -166,11 +164,14 @@ export class WipZipFile {
 
           addedFiles.push(finalFileName);
           log(`adding ${finalFileName}`);
-          return zipWriter.add(finalFileName, item.data);
+          const buffer = new Buffer();
+          if (!item.data.getData) return;
+          item.data.getData(buffer.writable);
+          return zipWriter.add(finalFileName, buffer.readable);
         }),
     );
 
-    log("closing zip writer")
+    log("closing zip writer");
     await zipWriter.close();
 
     log("calling getData");
@@ -184,10 +185,16 @@ export class WipZipFile {
     return object;
   };
 
-  public readFileEntryAsJson = (key: string): [string, unknown] | undefined => {
+  public readFileEntryAsJson = async (
+    key: string,
+  ): Promise<[string, unknown] | undefined> => {
     const entry = this.fileEntries.getEntryIgnoreCase(key);
     if (!entry) return undefined;
-    const parsedData = this.readBufferAsJson(entry[1].data);
-    return [entry[0], parsedData];
+    if (entry && entry[1] && entry[1].data && entry[1].data.getData) {
+      const buffer = new Buffer();
+      await entry[1].data.getData(buffer);
+      const parsedData = this.readBufferAsJson(buffer);
+      return [entry[0], parsedData];
+    }
   };
 }

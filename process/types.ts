@@ -1,8 +1,8 @@
-import { Buffer } from "../deps/buffer.ts";
+import { Entry } from "https://deno.land/x/zipjs@v2.7.69/index.d.ts";
 
 export type FileEntry = {
   name: string;
-  data: Buffer;
+  data: Entry;
 };
 
 export type ReconstructionEntry = {
