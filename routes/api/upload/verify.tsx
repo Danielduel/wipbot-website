@@ -119,14 +119,16 @@ export const _handler = async (
   );
   console.log(uploadUrl);
 
-  const response = await fetch(uploadUrl, {
+  const opts = {
     method: "PUT",
     body: verificationStream,
     headers: {
       "Content-Type": "application/zip",
       "Content-Length": verificationStreamLength + "",
     },
-  });
+  }
+  console.log(opts);
+  const response = await fetch(uploadUrl, opts);
   console.log(response);
 
   log("db update");
