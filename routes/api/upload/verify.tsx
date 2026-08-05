@@ -129,7 +129,7 @@ export const _handler = async (
     },
   }
   console.log(opts);
-  const response = await fetch(uploadUrl, opts);
+  const response = await fetch(uploadUrl + "&Content-Length=" + verificationStreamLength, opts);
   console.log(response);
 
   log("db update");
