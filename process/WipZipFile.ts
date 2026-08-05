@@ -163,7 +163,7 @@ export class WipZipFile {
           if (addedFiles.includes(finalFileName)) return Promise.resolve();
 
           addedFiles.push(finalFileName);
-          log(`adding ${finalFileName}`);
+          log(`adding ${finalFileName} - ${item.data.uncompressedSize} (compressed: ${item.data.compressedSize})`);
           const buffer = new Buffer();
           if (!item.data.getData) return;
           item.data.getData(buffer.writable);
