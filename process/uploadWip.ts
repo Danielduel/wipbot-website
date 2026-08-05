@@ -18,6 +18,7 @@ export namespace UploadWip {
         blobToVerify,
       );
       log("releasing blob memory")
+      delete blobToVerify;
 
       log("checking for error")
       if (wipZipFileVerificationM.isErr()) {
