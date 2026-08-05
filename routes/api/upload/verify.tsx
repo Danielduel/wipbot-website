@@ -123,7 +123,7 @@ export const _handler = async (
     body: verificationStream,
     headers: {
       "Content-Type": "application/zip",
-      "Content-Length": verificationStreamLength 
+      "Content-Length": verificationStreamLength + "" 
     }
   });
   console.log(response);
