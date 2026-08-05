@@ -38,6 +38,19 @@ const waitForWipBlob = async (s3Client: S3Client.ClientT, hash: string) => {
   return blob;
 };
 
+const getVerificationStream = async (s3Client: S3Client.ClientT, hash: string, log: (str: string) => void) => {
+  log("s3 get blob")
+  const blobToVerify = await waitForWipBlob(s3Client, hash);
+  log("s3 got blob")
+  if (!blobToVerify) throw 400;
+
+  log("verification start");
+  const verification = await UploadWip.verifyWip(await blobToVerify.blob(), log);
+  if (!verification) throw 400;
+  if (!verification.blob) throw 400;
+  return verification.blob.stream();
+}
+
 export const _handler = async (
   req: Request,
 ) => {
@@ -56,20 +69,10 @@ export const _handler = async (
 
   log("s3 init")
   const s3Client = S3Client.getS3Client();
-  log("s3 get blob")
-  const blobToVerify = await waitForWipBlob(s3Client, hash);
-  log("s3 got blob")
-  if (!blobToVerify) throw 400;
-
-  log("verification start");
-  const verification = await UploadWip.verifyWip(await blobToVerify.blob(), log);
-  if (!verification) throw 400;
-  if (!verification.blob) throw 400;
-
-  delete blobToVerify;
+  const verificationStream = await getVerificationStream(s3Client, hash, log);
 
   log("s3 put")
-  await s3Client.putObject(hash, verification.blob.stream(), {
+  await s3Client.putObject(hash, verificationStream, {
     bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
     metadata: { Expires: new Date(Date.now() + 5 * 1000).toString() },
   });
