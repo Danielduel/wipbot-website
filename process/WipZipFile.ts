@@ -166,7 +166,10 @@ export class WipZipFile {
 
           addedFiles.push(finalFileName);
           log(`adding ${finalFileName}`);
-          return zipWriter.add(finalFileName, item.data);
+          const ret = await zipWriter.add(finalFileName, item.data);
+          delete item.data;
+          delete item;
+          return ret;
         }),
     );
 

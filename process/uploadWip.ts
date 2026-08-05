@@ -1,6 +1,5 @@
 import { WipZipFileVerification } from "./WipZipFileVerification.ts";
 
-
 export namespace UploadWip {
   export type Verification = {
     blob: Blob | null;
