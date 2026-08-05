@@ -21,6 +21,7 @@ export class WipZipFile {
     wipFileBlob: Blob,
   ): Promise<Result<WipZipFile, Error>> {
     const wipZipFile = new WipZipFile(wipFileBlob);
+    delete wipFileBlob;
     const error = await wipZipFile.initialize();
     if (!error) return Ok(wipZipFile);
     return Err(error);
