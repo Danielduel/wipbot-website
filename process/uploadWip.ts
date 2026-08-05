@@ -11,30 +11,44 @@ export namespace UploadWip {
     blobToVerify: Blob,
   ): Promise<Verification | null> => {
     try {
+      const traceId = ~~(Math.random() * 255);
+      const log = (str: string) => console.log(`[trace: ${traceId}] Verify blob: ${str}`)
+      log("start")
       const wipZipFileVerificationM = await WipZipFileVerification.fromBlobM(
         blobToVerify,
       );
 
+      log("checking for error")
       if (wipZipFileVerificationM.isErr()) {
+        log("error")
         console.log(wipZipFileVerificationM.unwrapErr());
         throw 400;
       }
 
+      log("calling unwrap")
       const wipZipFileVerification = wipZipFileVerificationM.unwrap();
+
+      log("calling verify")
       const hasFailed = wipZipFileVerification.verify();
 
+      log("checking verify failure")
       if (hasFailed) {
+        log("verify failure")
         console.log(wipZipFileVerification.status);
         throw 400;
       }
 
+      log("calling reconstruct")
       const finalBlob = await wipZipFileVerification.reconstruct();
 
+      log("checking final blob")
       if (!finalBlob) {
+        log("final blob is empty")
         console.log(wipZipFileVerification.status);
         throw 400;
       }
 
+      log("sending response")
       return { blob: finalBlob, status: wipZipFileVerification.status };
     } catch (_) {
       console.error(_);
