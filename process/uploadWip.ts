@@ -17,6 +17,7 @@ export namespace UploadWip {
       const wipZipFileVerificationM = await WipZipFileVerification.fromBlobM(
         blobToVerify,
       );
+      log("releasing blob memory")
 
       log("checking for error")
       if (wipZipFileVerificationM.isErr()) {

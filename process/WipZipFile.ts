@@ -21,7 +21,6 @@ export class WipZipFile {
     wipFileBlob: Blob,
   ): Promise<Result<WipZipFile, Error>> {
     const wipZipFile = new WipZipFile(wipFileBlob);
-    delete wipFileBlob;
     const error = await wipZipFile.initialize();
     if (!error) return Ok(wipZipFile);
     return Err(error);
@@ -110,7 +109,12 @@ export class WipZipFile {
       this.fileEntries.set(newKey, value);
     }
 
-    return await returns(undefined);
+    const ret = await returns(undefined);
+
+    delete fileStream;
+    delete fileZipReader;
+
+    return ret;
   }
 
   public pushReconstructionEntryIfExists = (
