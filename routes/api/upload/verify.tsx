@@ -122,8 +122,8 @@ export const _handler = async (
     method: 'PUT',
     body: verificationStream,
     headers: {
-      'Content-Type': 'application/zip',
-      "Length": verificationStreamLength 
+      "Content-Type": "application/zip",
+      "Content-Length": verificationStreamLength 
     }
   });
   console.log(response);
