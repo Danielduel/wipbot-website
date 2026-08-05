@@ -61,9 +61,10 @@ const getVerificationStream = async (
   );
   if (!verification) throw 400;
   if (!verification.blob) throw 400;
+  const bytes = await verification.blob.bytes();
   return {
-    verificationStreamLength: verification.blob.size,
-    verificationStream: verification.blob.stream(),
+    verificationStreamLength: bytes.length,
+    verificationStream: bytes,
     verificationStatus: verification.status,
   };
 };
@@ -119,12 +120,12 @@ export const _handler = async (
   console.log(uploadUrl);
 
   const response = await fetch(uploadUrl, {
-    method: 'PUT',
+    method: "PUT",
     body: verificationStream,
     headers: {
       "Content-Type": "application/zip",
-      "Content-Length": verificationStreamLength + "" 
-    }
+      "Content-Length": verificationStreamLength + "",
+    },
   });
   console.log(response);
 
