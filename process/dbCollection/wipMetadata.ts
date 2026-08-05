@@ -22,6 +22,8 @@ export const WipMetadataSchema = z.object({
   outdated_at: z.date().default(new Date(0)),
 });
 
+export type WipMetadataSchemaT = z.infer<typeof WipMetadataSchema>;
+
 export const WipMetadata = collection(WipMetadataSchema, {
   history: true,
   indices: {

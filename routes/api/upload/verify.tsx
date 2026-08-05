@@ -51,11 +51,16 @@ const getVerificationStream = async (s3Client: S3Client.ClientT, hash: string, l
   return verification.blob.stream();
 }
 
+const memoryLog = () => {
+  const memory = Deno.memoryUsage()
+  return `[${memory.heapUsed}/${memory.heapTotal}]`
+}
+
 export const _handler = async (
   req: Request,
 ) => {
   const traceId = ~~(Math.random() * 255);
-  const log = (str: string) => console.log(`[trace: ${traceId}] Verify blob: ${str}`)
+  const log = (str: string) => console.log(`[trace: ${traceId}] ${memoryLog()} Verify blob: ${str}`)
   
   const hash = (await req.json()).hash;
   log(`hash ${hash}`)
