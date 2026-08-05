@@ -144,7 +144,7 @@ export class WipZipFile {
     log("checking reconstruction data");
     await Promise.all(
       this.reconstructionEntries
-        .map(({ filename, isOptional }) => {
+        .map(async ({ filename, isOptional }) => {
           const entry = this.fileEntries.getEntryIgnoreCase(filename);
           if (!entry && isOptional) return Promise.resolve();
           if (!entry && !isOptional) {
@@ -166,7 +166,7 @@ export class WipZipFile {
           log(`adding ${finalFileName} - ${item.data.uncompressedSize} (compressed: ${item.data.compressedSize})`);
           const buffer = new Buffer();
           if (!item.data.getData) return;
-          item.data.getData(buffer.writable);
+          await item.data.getData(buffer.writable);
           return zipWriter.add(finalFileName, buffer.readable);
         }),
     );
