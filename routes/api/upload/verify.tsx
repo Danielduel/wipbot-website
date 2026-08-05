@@ -99,38 +99,38 @@ export const _handler = async (
     await getVerificationStream(hash, log);
 
   log("s3 init for put");
-  // const s3Client = S3Client.getS3Client();
+  const s3Client = S3Client.getS3Client();
   log("s3 put");
-  // await s3Client.putObject(hash, verificationStream, {
-  //   bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
-  //   metadata: { Expires: new Date(Date.now() + 5 * 1000).toString() },
-  // });
-  const uploadUrl = await getPreSignedUploadUrl(
-    hash, // fileName
-    Deno.env.get("S3_URL")!.split(".")[0]!, // accountId
-    // Deno.env.get("R2_ACCESS_KEY_ID")!, // accessKeyId
-    // Deno.env.get("R2_SECRET_KEY")!, // secretAccessKey
-
-    Deno.env.get("S3_KEY_ID")!,
-    Deno.env.get("S3_SECRET_ACCESS_KEY")!,
-    S3Client.BUCKET.WIP_BLOB_VERIFIED, // bucketName
-    5 * 1000, // expiresIn (seconds)
-    "application/zip", // contentType
-  );
-  console.log(uploadUrl);
-
-  const opts = {
-    method: "PUT",
-    body: verificationStream,
-    headers: {
-      "Content-Type": "application/zip",
-      "Content-Length": verificationStreamLength + "",
-      "Length": verificationStreamLength + "",
-    },
-  }
-  console.log(opts);
-  const response = await fetch(uploadUrl + "&Content-Length=" + verificationStreamLength, opts);
-  console.log(response);
+  await s3Client.putObject(hash, verificationStream, {
+    bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
+    metadata: { Expires: new Date(Date.now() + 5 * 1000).toString() },
+  });
+  // const uploadUrl = await getPreSignedUploadUrl(
+  //   hash, // fileName
+  //   Deno.env.get("S3_URL")!.split(".")[0]!, // accountId
+  //   // Deno.env.get("R2_ACCESS_KEY_ID")!, // accessKeyId
+  //   // Deno.env.get("R2_SECRET_KEY")!, // secretAccessKey
+  //
+  //   Deno.env.get("S3_KEY_ID")!,
+  //   Deno.env.get("S3_SECRET_ACCESS_KEY")!,
+  //   S3Client.BUCKET.WIP_BLOB_VERIFIED, // bucketName
+  //   5 * 1000, // expiresIn (seconds)
+  //   "application/zip", // contentType
+  // );
+  // console.log(uploadUrl);
+  //
+  // const opts = {
+  //   method: "PUT",
+  //   body: verificationStream,
+  //   headers: {
+  //     "Content-Type": "application/zip",
+  //     "Content-Length": verificationStreamLength + "",
+  //     "Length": verificationStreamLength + "",
+  //   },
+  // }
+  // console.log(opts);
+  // const response = await fetch(uploadUrl + "&Content-Length=" + verificationStreamLength, opts);
+  // console.log(response);
 
   log("db update");
   await dbClient.WipMetadata.updateByPrimaryIndex(
