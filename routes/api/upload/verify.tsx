@@ -51,9 +51,10 @@ const getVerificationStream = async (s3Client: S3Client.ClientT, hash: string, l
   return verification.blob.stream();
 }
 
+const toMB = (num: number) => (~~((num / (1024 * 1024)) * 100) / 100) + "MB";
 const memoryLog = () => {
   const memory = Deno.memoryUsage()
-  return `[${memory.heapUsed}/${memory.heapTotal}]`
+  return `[${toMB(memory.heapUsed)}|${toMB(memory.heapTotal)}]`
 }
 
 export const _handler = async (
