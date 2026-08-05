@@ -66,6 +66,8 @@ export const _handler = async (
   if (!verification) throw 400;
   if (!verification.blob) throw 400;
 
+  delete blobToVerify;
+
   log("s3 put")
   await s3Client.putObject(hash, verification.blob.stream(), {
     bucketName: S3Client.BUCKET.WIP_BLOB_VERIFIED,
