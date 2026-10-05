@@ -20,7 +20,7 @@ export function Header(props: JSX.HTMLAttributes<HTMLDivElement>) {
       class="w-full"
       {...props}
     >
-      <div class="container mx-auto">
+      <div class="container mx-auto flex">
         <Link href="/">Home</Link>
         <Link href="https://statistics.wipbot.com/" target="_blank">Stats</Link>
         <Link
@@ -35,6 +35,21 @@ export function Header(props: JSX.HTMLAttributes<HTMLDivElement>) {
         >
           Latest mod release
         </Link>
+
+
+        <span class="ml-auto">
+        <Link
+          href="https://ko-fi.com/U3F3284FVU"
+          target="_blank"
+        >
+            <img
+              height="36"
+              class="border-0 h-9"
+              src="https://storage.ko-fi.com/cdn/kofi3.png?v=6"
+              alt="Buy Me a Coffee at ko-fi.com"
+            />
+          </Link>
+        </span>
       </div>
     </div>
   );
