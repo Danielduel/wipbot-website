@@ -39,7 +39,7 @@ export function Header(props: JSX.HTMLAttributes<HTMLDivElement>) {
 
         <span class="ml-auto">
         <Link
-          href="https://ko-fi.com/U3F3284FVU"
+          href="https://ko-fi.com/danielduel"
           target="_blank"
         >
             <img
