@@ -1,7 +1,3 @@
-import {
-  getPreSignedDownloadUrl,
-  getPreSignedUploadUrl,
-} from "@mesilicon7/simple-r2-utils";
 import { DbClient } from "../../../process/dbClient.ts";
 import { WipMetadataSchemaT } from "../../../process/dbCollection/wipMetadata.ts";
 import { S3Client } from "../../../process/s3Client.ts";
